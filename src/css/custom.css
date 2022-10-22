@@ -1,0 +1,44 @@
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+/* You can override the default Infima variables here. */
+
+
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro&family=Source+Sans+Pro:wght@400;600;700&display=swap');
+
+:root {
+  --ifm-color-primary: #05C79D;
+  --ifm-color-primary-dark: #049576;
+  --ifm-color-primary-darker: #03634F;
+  --ifm-color-primary-darkest: #013227;
+  --ifm-color-primary-light: #06F9C5;
+  --ifm-color-primary-lighter: #33FACF;
+  --ifm-color-primary-lightest: #60FBDA;
+  --ifm-code-font-size: 95%;
+  --ifm-font-family-monospace: 'Source Code Pro', monospace;
+  --ifm-font-family-base: 'Source Sans Pro', sans-serif;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+}
+
+/* For readability concerns, you should choose a lighter palette in dark mode. */
+[data-theme='dark'] {
+  --ifm-color-primary: #05C79D;
+  --ifm-color-primary-dark: #049576;
+  --ifm-color-primary-darker: #03634F;
+  --ifm-color-primary-darkest: #013227;
+  --ifm-color-primary-light: #06F9C5;
+  --ifm-color-primary-lighter: #33FACF;
+  --ifm-color-primary-lightest: #60FBDA;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+
+code {
+  padding-right: 0.4rem;
+  padding-left: 0.4rem;
+  margin: -0.1rem 0.1rem 0.1rem;
+  display: inline-block;
+}
