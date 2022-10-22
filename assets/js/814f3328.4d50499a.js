@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkwebsite=self.webpackChunkwebsite||[]).push([[535],{5641:e=>{e.exports=JSON.parse('{"title":"Recent posts","items":[{"title":"Using an application global store","permalink":"/case-studies/using-global-store"},{"title":"Using an i18n provider","permalink":"/case-studies/using-internationalisation"}]}')}}]);
