@@ -5,6 +5,5 @@ authors: jvdsande
 tags: [store, redux]
 ---
 
-:::note
-Comming soon
-:::
+In this case study, we see how you could integrate an [Easy-Peasy](https://easy-peasy.vercel.app/)-powered Redux store through
+a custom stage in your application.

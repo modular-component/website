@@ -83,7 +83,7 @@ const MyComponent = ModularComponent()
 MyComponent.withStage()
 
 // ✅ Do this instead - save the result of the `withStage` call
-//   as your component
+//    as your component
 const MyComponent = ModularComponent()
   .withStage()
 ```
@@ -93,5 +93,55 @@ This will come in very handy in the next chapter about [extending and reusing co
 
 ### Custom stages
 
+All the stages we configured when building our factory can be used to create our component. Each stage will add or modify
+a field on the shared **argument map**, consolidating data that can be consumed by further stages.
+
+The order of stages is therefore important: only data from stages appearing _higher in the list_ will be available in 
+any given stage.
+
+Generic stages (handling default props, injecting localization data...) should come first in the pipeline. If needed,
+we can then add a lifecycle stage handling the component's logic. Our component could look something like that:
+
+```tsx
+const MyComponent = ModularComponent()
+  .withGlobalStore()
+  .withLocale('localization.key.for.my.component')
+  .withLifecycle(({ locale, store }) => {
+    useDocumentTitle(locale('title'))
+    
+    const someStoreValue = store.useState((store) => store.some.value)
+    const [someInternalValue] = React.useState('value')
+    
+    return { someStoreValue, someInternalValue }
+  })
+```
+
 ### Render stage
 
+Finally, we can close our component by adding the only built-in stage: `withRender`. This stage takes as parameter a
+`FunctionComponent` which receives the generated argument map as props. Since all computations and stateful manipulations
+are done in prior stages, it can stay simple and concentrate on its main purpose: outputting markup.
+
+Building on top of our previous example, this is what our component could look like:
+
+```tsx
+const MyComponent = ModularComponent()
+  .withGlobalStore()
+  .withLocale('localization.key.for.my.component')
+  .withLifecycle(({ locale, store }) => {
+    useDocumentTitle(locale('title'))
+    
+    const someStoreValue = store.useState((store) => store.some.value)
+    const [someInternalValue] = React.useState('value')
+    
+    return { someStoreValue, someInternalValue }
+  })
+  .withRender(({ locale, lifecycle }) => (
+    <>
+      <h1>{locale('title')}</h1>
+      <p>{locale('content')}</p>
+      <p>Value from store: {lifecycle.someStoreValue}</p>
+      <p>Value from state: {lifecycle.someInternalValue}</p>
+    </>
+  ))
+```
