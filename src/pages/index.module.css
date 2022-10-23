@@ -35,6 +35,16 @@
   .heroBanner {
     padding: 2rem;
   }
+
+  .heroLogo {
+    position: relative;
+    top: 0;
+    left: 0;
+  }
+
+  .heroTitle {
+    font-size: min(7vw, 48px);
+  }
 }
 
 .buttons {
