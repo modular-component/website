@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://modular-component.dev/case-studies</id>
     <title>ModularComponent Blog</title>
-    <updated>2022-10-23T17:43:14.000Z</updated>
+    <updated>2022-10-23T17:46:11.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://modular-component.dev/case-studies"/>
     <subtitle>ModularComponent Blog</subtitle>
@@ -11,7 +11,7 @@
         <title type="html"><![CDATA[Using an application global store]]></title>
         <id>using-global-store</id>
         <link href="https://modular-component.dev/case-studies/using-global-store"/>
-        <updated>2022-10-23T17:43:14.000Z</updated>
+        <updated>2022-10-23T17:46:11.000Z</updated>
         <summary type="html"><![CDATA[In this case study, we see how you could integrate an Easy-Peasy-powered Redux store through]]></summary>
         <content type="html"><![CDATA[<p>In this case study, we see how you could integrate an <a href="https://easy-peasy.vercel.app/" target="_blank" rel="noopener noreferrer">Easy-Peasy</a>-powered Redux store through
 a custom stage in your application.</p><p><em>🚧 Work in progress...</em></p>]]></content>

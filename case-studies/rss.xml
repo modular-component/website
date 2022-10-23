@@ -4,7 +4,7 @@
         <title>ModularComponent Blog</title>
         <link>https://modular-component.dev/case-studies</link>
         <description>ModularComponent Blog</description>
-        <lastBuildDate>Sun, 23 Oct 2022 17:43:14 GMT</lastBuildDate>
+        <lastBuildDate>Sun, 23 Oct 2022 17:46:11 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
@@ -12,7 +12,7 @@
             <title><![CDATA[Using an application global store]]></title>
             <link>https://modular-component.dev/case-studies/using-global-store</link>
             <guid>using-global-store</guid>
-            <pubDate>Sun, 23 Oct 2022 17:43:14 GMT</pubDate>
+            <pubDate>Sun, 23 Oct 2022 17:46:11 GMT</pubDate>
             <description><![CDATA[In this case study, we see how you could integrate an Easy-Peasy-powered Redux store through]]></description>
             <content:encoded><![CDATA[<p>In this case study, we see how you could integrate an <a href="https://easy-peasy.vercel.app/" target="_blank" rel="noopener noreferrer">Easy-Peasy</a>-powered Redux store through
 a custom stage in your application.</p><p><em>🚧 Work in progress...</em></p>]]></content:encoded>
