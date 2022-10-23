@@ -1,10 +1,31 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100" height="100">
-    <ellipse cx="250" cy="390" rx="232" ry="90" fill="none" stroke="#013227" stroke-width="35" />
+    <g transform="translate(0, 135)">
+        <ellipse cx="250" cy="250" rx="232" ry="90" fill="none" stroke="#013227" stroke-width="35"/>
+        <text>
+            <!-- empty tag to keep the g in optimization -->
+        </text>
+    </g>
 
-    <ellipse cx="250" cy="390" rx="232" ry="90" fill="none" stroke="#03634F" stroke-width="35"
-             transform="rotate(60 250 290) translate(-7 -213)"
-    />
-    <ellipse cx="250" cy="390" rx="232" ry="90" fill="none" stroke="#049576" stroke-width="35"
-             transform="rotate(-60 250 290) translate(7 -213)"
-    />
+    <g transform="translate(95, -25)">
+        <ellipse cx="250" cy="250" rx="232" ry="90" fill="none" stroke="#03634F" stroke-width="35"
+                 transform="rotate(60 250 250)"
+        />
+        <text>
+            <!-- empty tag to keep the g in optimization -->
+        </text>
+    </g>
+    <g transform="translate(-95, -25)">
+        <ellipse cx="250" cy="250" rx="232" ry="90" fill="none" stroke="#049576" stroke-width="35"
+                 transform="rotate(-60 250 250)"
+        />
+        <text>
+            <!-- empty tag to keep the g in optimization -->
+        </text>
+    </g>
+    <g transform="scale(0)">
+        <circle cx="250" cy="250" r="50" fill="#013227"/>
+        <text>
+            <!-- empty tag to keep the g in optimization -->
+        </text>
+    </g>
 </svg>
