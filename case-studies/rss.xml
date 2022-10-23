@@ -4,7 +4,7 @@
         <title>ModularComponent Blog</title>
         <link>https://modular-component.dev/case-studies</link>
         <description>ModularComponent Blog</description>
-        <lastBuildDate>Sun, 23 Oct 2022 17:08:50 GMT</lastBuildDate>
+        <lastBuildDate>Sun, 23 Oct 2022 17:39:52 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
@@ -12,10 +12,10 @@
             <title><![CDATA[Using an application global store]]></title>
             <link>https://modular-component.dev/case-studies/using-global-store</link>
             <guid>using-global-store</guid>
-            <pubDate>Sun, 23 Oct 2022 17:08:50 GMT</pubDate>
+            <pubDate>Sun, 23 Oct 2022 17:39:52 GMT</pubDate>
             <description><![CDATA[In this case study, we see how you could integrate an Easy-Peasy-powered Redux store through]]></description>
             <content:encoded><![CDATA[<p>In this case study, we see how you could integrate an <a href="https://easy-peasy.vercel.app/" target="_blank" rel="noopener noreferrer">Easy-Peasy</a>-powered Redux store through
-a custom stage in your application.</p>]]></content:encoded>
+a custom stage in your application.</p><p><em>🚧Work in progress...</em></p>]]></content:encoded>
             <category>store</category>
             <category>redux</category>
         </item>
@@ -26,7 +26,7 @@ a custom stage in your application.</p>]]></content:encoded>
             <pubDate>Sat, 22 Oct 2022 00:00:00 GMT</pubDate>
             <description><![CDATA[In this case study, we look at injecting a component localization data using i18next]]></description>
             <content:encoded><![CDATA[<p>In this case study, we look at injecting a component localization data using <a href="https://www.i18next.com/" target="_blank" rel="noopener noreferrer"><code>i18next</code></a>
-and TypeScript to build a custom modular stage.</p>]]></content:encoded>
+and TypeScript to build a custom modular stage.</p><p><em>🚧Work in progress...</em></p>]]></content:encoded>
             <category>i18n</category>
         </item>
     </channel>
