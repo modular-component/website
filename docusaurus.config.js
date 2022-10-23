@@ -17,6 +17,8 @@ const config = {
   // GitHub pages deployment config.
   organizationName: 'modular-component',
   projectName: 'website',
+  deploymentBranch: 'pages',
+  trailingSlash: false,
 
   i18n: {
     defaultLocale: 'en',

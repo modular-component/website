@@ -29,7 +29,7 @@ Setting up a factory that allow components to hook into your specific applicatio
 ### Using published extensions
 
 For some use cases, it's possible to use pre-configured stage methods to build your factory. For instance, the `ModularComponent` team maintain a list of
-[official extensions](../extensions/official) for the most common use cases.
+[official extensions](../extensions/official/official.md) for the most common use cases.
 
 The convention for published extensions is to export **stage records**, which are maps of stage function names to stage function configurations.
 Such records are most of the time prefixed with `With`, capitalized. For instance, the default stage record exposed by `@modular-component/default` 
@@ -54,7 +54,7 @@ In other cases, pre-configured stage methods might not cover your needs. In this
 stage records to `extend` calls, either inline or as their own variable. 
 
 If you don't want to inline your stage records, you can still get TypeScript validation by wrapping them in the `createStageRecord` helper exported by
-`@modular-component/core`, just as if you were [writing your own extension](../extensions/reference).
+`@modular-component/core`, just as if you were [writing your own extension](../extensions/reference.md).
 
 
 ```ts

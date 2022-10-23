@@ -10,7 +10,7 @@ However, it is perfectly possible to take advantage of `ModularComponent` with s
 
 ## Factory setup
 
-Once you've [created your component factory](./building-the-factory), you can start using it to build your component.
+Once you've [created your component factory](./building-the-factory.md), you can start using it to build your component.
 In this guide, we consider a factory exported with three stages:
 
 * `withDefaultProps` allows setting default value for props
@@ -18,7 +18,7 @@ In this guide, we consider a factory exported with three stages:
 * `withComponents` can inject a map of sub-components for which we can later swap implementations
 
 :::tip
-All those stages are availabe as [official extensions](../extensions/official)
+All those stages are availabe as [official extensions](../extensions/official/official.md)
 ::::
 
 ## Configuring the component
@@ -88,8 +88,8 @@ const MyComponent = ModularComponent()
   .withStage()
 ```
 
-This will come in very handy in the next chapter about [extending and reusing components](./reusing-components), as well as for
-[testing components]('./testing-components')
+This will come in very handy in the next chapter about [extending and reusing components](./reusing-components.md), as well as for
+[testing components](./testing-components.md)
 
 ### Custom stages
 
