@@ -52,9 +52,14 @@ a {
   color: var(--ifm-color-primary-dark);
 }
 
+.navbar__link--active {
+  font-weight: 700;
+}
+
 .table-of-contents__link--active,
-.menu__link--active {
-  color: var(--ifm-color-primary-dark);
+.menu__link--active,
+[class].sidebarItemLinkActive_node_modules-\@docusaurus-theme-classic-lib-theme-BlogSidebar-Desktop-styles-module {
+  color: var(--ifm-color-primary-dark) !important;
 }
 
 .table-of-contents__link:hover,
