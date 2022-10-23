@@ -137,7 +137,7 @@ Stages can have one of two modes: **single** (default), or **multiple**.
   set up by the very first call, otherwise it could break stages depending on it.
 
   When using TypeScript, this is enforced internally, and a subsequent call to an already
-  added stages will be narrowed to force honoring previous contracts.
+  added stage will be narrowed to force honoring previous contracts.
 
 - A **multiple**-mode stage on the other hand can appear in various places in the pipeline.
 
@@ -149,7 +149,7 @@ Stages can have one of two modes: **single** (default), or **multiple**.
   restricted in any way.
 
 The reason for the **single** mode being default is to help re-usability: for instance, you can
-extend an existing component by replacing its lifecycle but keeping the same render, of vice-versa.
+extend an existing component by replacing its lifecycle but keeping the same render, or vice-versa.
 
 This also makes `ModularComponent`s easy to test: stages can be tested in isolation from one another.
 

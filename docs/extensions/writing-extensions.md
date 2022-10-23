@@ -36,7 +36,7 @@ ModularComponent().withSomeFunction(myFunction)
 ModularComponent().withSomeFunction(() => myFunction)
 ```
 
-When executed, each stage modifies _exactly one argument_ in the shared arguments map.
+When executed, each stage modifies _exactly one argument_ in the shared argument map.
 
 ## Extension conventions
 
@@ -85,7 +85,7 @@ export const WithLifecycle = createMethodRecord({
 Notice the `as const` statement, making sure TypeScript narrows all
 types as much as possible. It is of paramount importance to always add this statement
 to ensure type inference works correctly. Otherwise, the `field` parameter
-could be inferred as `string`, polluting the complete arguments map.
+could be inferred as `string`, polluting the complete argument map.
 
 If you provide a misconfigured method, the `createMethodRecord` function
 will reject the argument, letting you know right away.
@@ -98,9 +98,9 @@ be sufficient for other cases. For instance, the `withDefaultProps` stage needs 
 into account existing props, without needing the user to pass them down manually each time.
 
 For this purpose, a method can also receive a `transform` configuration parameter, detailing
-how to generate the final value that will be added to the arguments map.
+how to generate the final value that will be added to the argument map.
 
-The `transform` function receives two parameters: the current arguments map received from
+The `transform` function receives two parameters: the current argument map received from
 previous stages, and the value passed down to the stage by the user. It then returns the
 transformed value to add to the argument map.
 
