@@ -8,3 +8,7 @@ tags: [i18n]
 
 In this case study, we look at injecting a component localization data using [`i18next`](https://www.i18next.com/)
 and TypeScript to build a custom modular stage.
+
+<!--truncate-->
+
+_🚧 Work in progress..._

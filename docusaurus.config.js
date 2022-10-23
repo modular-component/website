@@ -40,7 +40,7 @@ const config = {
           editUrl:
             'https://github.com/modular-component/website',
           path: 'case-studies',
-          routeBasePath: 'case-studies'
+          routeBasePath: 'case-studies',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
