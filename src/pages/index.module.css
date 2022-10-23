@@ -24,11 +24,16 @@
 
 .heroLogo g {
   transform-origin: 50% 50%;
-  transition: transform .5s;
+  transition: transform .5s, color .5s;
 }
 
 .heroLogo:hover g {
   transform: none;
+  color: white;
+}
+
+.heroLogo:hover ellipse {
+  stroke-width: 20;
 }
 
 @media screen and (max-width: 996px) {

@@ -15,38 +15,46 @@ store, or for handling internationalization...
 Such capabilities are added through **extensions**. Extensions are configuration objects
 detailing a new stage method to add to the pipeline.
 
-> **Understanding stages**
->
-> Each stage of a pipeline receives _exactly one argument_, that can take two forms:
->
-> - A primitive value, array or object (_but **not a function**_) to inject as argument
->   for further stages,
-> - A hook receiving the current set of arguments and computing the value to add.
->
-> If the value to inject should be a function, then it is mandatory to use the hook parameter
-> to wrap the function, otherwise the factory wouldn't know if it should execute the function
-> or pass it down as-is:
->
-> ```tsx
-> // This will fail, the factory will execute the function thinking it's a hook!
-> ModularComponent().withSomeFunction(myFunction)
->
-> // This will work, the factory will execute the anonymous function as a hook,
-> // and pass the returned function as argument for further stages
-> ModularComponent().withSomeFunction(() => myFunction)
-> ```
->
-> When executed, each stage modifies _exactly one argument_ in the shared arguments map.
+## Understanding stages
+
+Each stage of a pipeline is a function receiving _exactly one argument_, that can take two forms:
+
+- A primitive value, array or object (_but **not a function**_) to inject as argument
+  for further stages,
+- A hook receiving the current set of arguments and computing the value to add.
+
+If the value to inject should be a function, then it is mandatory to use the hook parameter
+to wrap the function, otherwise the factory wouldn't know if it should execute the received function
+or pass it down as-is:
+
+```tsx
+// ⚠️ This will fail, the factory will execute the function thinking it's a hook!
+ModularComponent().withSomeFunction(myFunction)
+
+// ✅ This will work, the factory will execute the anonymous function as a hook,
+//    and pass the returned function as argument for further stages
+ModularComponent().withSomeFunction(() => myFunction)
+```
+
+When executed, each stage modifies _exactly one argument_ in the shared arguments map.
+
+## Extension conventions
+
+Extensions are written as a map of method name to method configuration. They can register one or multiple
+new stage methods at a time, depending on the needs covered by the extension.
+
+By convention, an extension name starts with `With`, capitalized. If it contains a single stage function definition,
+then it should be named after the function it creates. If it contains multiple stage function definitions, then it
+should be named after the common goal set by the stages.
 
 ## Setting a name and a target argument
 
-In order to add a new stage, we need to provide at the very least:
+At its simplest, a stage function definition should contain:
 
 - The name of the method to add to the factory (`withLifecycle`, `withDefaultProps`...)
 - The name of the argument modified by the stage (`lifecycle`, `props`...)
 
-Extensions are written as a map of method name to method configuration. For instance, the `withLifecycle`
-definition looks something like this:
+For instance, the `withLifecycle` definition looks something like this:
 
 ```tsx
 export const WithLifecycle = {
@@ -114,7 +122,7 @@ The stage is configured to modify the `props` field, and its custom transform fu
 merges the provided default props.
 
 However, there is a mistake in the above transform function: the second parameter
-is the raw value passed down by the user: it can therefore be a function. When writing
+is the raw value passed down by the user - it can therefore be a function. When writing
 a transform function, you need to account for this case manually. Here is a correct
 implementation of the above transform:
 
@@ -138,15 +146,10 @@ need to name it accordingly to not break the rule of hooks here.
 While this might seem cumbersome, it offers a great flexibility for writing extensions:
 
 - It gives the opportunity to manipulate the args passed down to the hook, if needed,
-- It allows delaying or the call to the function to the transform function, which can
+- It allows delaying the hook call to the transform function, which can
   for instance decide not to call it at all based on previous arguments.
 
 ## Telling TypeScript about a value transformation
-
-> Note: this is currently the only part of `ModularComponent` that is not 100% extensible,
-> as it requires patching a shared interface in `@modular-component/core`. Because of that,
-> it is not possible to have two stages with the same name and a different transform in the
-> same application.
 
 Sometimes, the transformation that we want to apply on a value might change its type
 from the one passed as parameter. Unfortunately, as of TypeScript 4.8, there isn't
@@ -158,12 +161,19 @@ The workaround implemented for now is an exposed interface, `ModularStageTransfo
 takes a generic parameter and contains a map of transformed type. An extension package
 can overload this interface to add the correct transform for the provided stage.
 
+In order to avoid clashes between multiple extensions providing a similar
+stage function name, the transform map uses _symbols_ as its key to ensure
+uniqueness. The symbol must be passed to the corresponding stage function definition.
+
 For instance, let's imagine a `withArray` stage that wraps the passed value in an array:
 
 ```tsx
+const withArray = Symbol()
+
 export const WithArray = createMethodRecord({
   withArray: {
     field: 'array',
+    symbol: withArray,
     transform: (args, useArray) => [
       typeof useArray === 'function' ? useArray(args) : useArray,
     ],
@@ -178,7 +188,7 @@ type:
 ```tsx
 declare module '@modular-component/core' {
   export interface ModularStageTransform<T> {
-    withArray: [T]
+    [withArray]: [T]
   }
 }
 ```
@@ -251,3 +261,8 @@ will log the arguments gathered up until each debug stage.
 > definition will allow users to omit the argument completely, making `useDebug()`
 > a valid call instead of requiring `useDebug(undefined)`. Useful for
 > stages that return a constant value or only execute side-effects!
+
+## Learn more
+
+You can read the documentation for each [official extension](./official/official.md) to learn more
+about writing extensions.

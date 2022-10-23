@@ -55,7 +55,7 @@ In other cases, pre-configured stage methods might not cover your needs. In this
 stage records to `extend` calls, either inline or as their own variable. 
 
 If you don't want to inline your stage records, you can still get TypeScript validation by wrapping them in the `createStageRecord` helper exported by
-`@modular-component/core`, just as if you were [writing your own extension](../extensions/reference.md).
+`@modular-component/core`, just as if you were [writing your own extension](../extensions/writing-extensions.md).
 
 
 ```ts

@@ -73,7 +73,7 @@ on which custom factory functions (our defined **stage functions**) have been ad
 stage functions.
 
 Note that just like **factory builders**, **component factories** are immutable. Because of this, you need to chain the stage calls in the same
-assignement as your component creation. You _cannot call them as side-effects_.
+assignment as your component creation. You _cannot call them as side-effects_.
 
 ```tsx
 // ⚠️ This will not work - `withStage` call returns a modified 
