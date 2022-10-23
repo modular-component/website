@@ -21,6 +21,11 @@
   --ifm-font-family-monospace: 'Source Code Pro', monospace;
   --ifm-font-family-base: 'Source Sans Pro', sans-serif;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+
+  --ifm-navbar-link-color: var(--ifm-color-primary-dark);
+  --ifm-navbar-link-hover-color: var(--ifm-color-primary-darker);
+  --ifm-breadcrumb-color-active: var(--ifm-color-primary-dark);
+  --ifm-breadcrumb-border-radius: 5px;
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
@@ -41,4 +46,18 @@ code {
   padding-left: 0.4rem;
   margin: -0.1rem 0.1rem 0.1rem;
   display: inline-block;
+}
+
+a {
+  color: var(--ifm-color-primary-dark);
+}
+
+.table-of-contents__link--active,
+.menu__link--active {
+  color: var(--ifm-color-primary-dark);
+}
+
+.table-of-contents__link:hover,
+.menu__link:hover {
+  color: var(--ifm-color-primary-darker);
 }

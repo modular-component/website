@@ -11,13 +11,11 @@ sidebar_position: 1
 
 Modular Components are React components built through a modular factory, allowing to
 add functionality as needed as the component is built.
-
 The modular factory approach is built on top of React hooks, and offers out-of-the-box
 composition for building and stub injections for testing.
 
 It offers best-in-class DX through strong typing and easy separation of concern, and is
-infinitely extensible thanks to its built-in modular nature.
-
+infinitely extensible thanks to its built-in modular nature.  
 You can think of it as "higher-order hooks", without the awkward chaining of methods
 thanks to the factory pattern.
 
@@ -26,7 +24,7 @@ thanks to the factory pattern.
 At it simplest, you will need the `@modular-component/core` package to get started with `ModularComponent`.
 
 However, the core module alone does not bring any component capability - it needs plugins,
-or extensions, to start shining ✨
+or extensions, to start shining ✨ !
 
 We provide a sensible set of default capabilities through the `@modular-component/default` package.
 It is highly recommended to install both for getting started.
@@ -46,7 +44,7 @@ import { WithDefaultStages } from '@modular-component/default'
 const ModularComponent = modularFactory.extend(WithDefaultStages).build()
 ```
 
-You can then instantiate new components with the `ModularComponent` factory function:
+From there, you can instantiate new components with the `ModularComponent` factory function:
 
 ```tsx
 const MyFirstModularComponent = ModularComponent<{
@@ -168,7 +166,7 @@ also expose two more methods:
   It optionally takes a string parameter allowing to extract a specific argument.
 
 - `atStage`: rewinds a factory all the way up to a specific stage
-  (in case on multiple-mode stages, the last occurrence is used), and return the
+  (in case of multiple-mode stages, the last occurrence is used), and return
   a new `ModularComponent` with the remaining stages.
   Useful for instance to test in isolation the first few stages of a component.
 

@@ -57,6 +57,7 @@ const config = {
         logo: {
           alt: 'ModularComponent',
           src: 'img/logo.svg',
+          srcDark: 'img/logo-dark.svg'
         },
         items: [
           {

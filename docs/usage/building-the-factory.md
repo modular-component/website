@@ -6,8 +6,9 @@ sidebar_position: 1
 
 When setting up `ModularComponent` in a project, the first thing to do is to **build your factory**.
 
-With `ModularComponent`, the factory itself is modular. There are no preconceptios about your application, how it works, what library you are using...
-Setting up a factory that allow components to hook into your specific application context is up to you.
+With `ModularComponent`, the factory itself is modular. There are no preconceptions about your application,
+how it works, what library you are using...
+Setting up a factory that allows components to hook into your specific application context is up to you.
 
 ## The `modularFactory` export
 
