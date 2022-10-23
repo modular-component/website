@@ -42,8 +42,11 @@
     left: 0;
   }
 
-  .heroTitle {
+  .heroTitle:global(.hero__title) {
     font-size: min(7vw, 48px);
+  }
+  .heroTitle:global(.hero__subtitle) {
+    font-size: min(5vw, 24px);
   }
 }
 
