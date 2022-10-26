@@ -170,9 +170,26 @@ also expose two more methods:
   a new `ModularComponent` with the remaining stages.
   Useful for instance to test in isolation the first few stages of a component.
 
-Combining those two methods can be very powerful in testing scenarios. For instance,
+- `mockStage`: replace a stage with a mocked implementation, skipping its transform
+  entirely. For some single stages, calling the stage itself could help with mocking,
+  but sometimes we don't want the transform to run at all, and mock the resulting value
+  directly. `mockStage` does just that. In case of multiple-mode stages, the
+  last occurrence is mocked.
+  The mock can either be a direct value, or a function returning the value. As
+  with stage functions, if the value to mock should be a function, then it needs
+  to be wrapped in an anonymous function.
+  The accepted values for mocking are strongly typed to respect the contract
+  set by the original stage.
+
+Combining those three methods can be very powerful in testing scenarios. For instance,
 one can extract the lifecycle hook of a component by chaining them:
 
 ```tsx
 const useLifecycle = MyComponent.atStage('withLifecycle').asHook('lifecycle')
+```
+
+Or one could mock the lifecycle entirely to test the render:
+
+```tsx
+const OnlyRender = MyComponent.mockStage('withLifecycle', { fromLifecycle: 'hello world' })
 ```
