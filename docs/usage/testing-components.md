@@ -556,7 +556,6 @@ const Component = LoginForm
 Thanks to this, we can now use those mocks in our tests to validate the expected props are passed down:
 
 ```tsx
-
 it('should render an email input controlled by lifecycle', () => {
   // Arrange
   const emailInput = mocks.components.EmailInput

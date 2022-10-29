@@ -255,12 +255,12 @@ All that was needed here was adding the `multiple: true` flag to our configurati
 From there on, calling `withDebug()` multiple time on the same `ModularComponent`
 will log the arguments gathered up until each debug stage.
 
-> **Side note: `restrict: undefined`**
->
-> Whenever `restrict: undefined` is used on a stage method, the type
-> definition will allow users to omit the argument completely, making `useDebug()`
-> a valid call instead of requiring `useDebug(undefined)`. Useful for
-> stages that return a constant value or only execute side-effects!
+:::note Side note: `restrict: undefined`
+Whenever `restrict: undefined` is used on a stage method, the type
+definition will allow users to omit the argument completely, making `useDebug()`
+a valid call instead of requiring `useDebug(undefined)`. Useful for
+stages that return a constant value or only execute side-effects!
+:::
 
 ## Learn more
 
