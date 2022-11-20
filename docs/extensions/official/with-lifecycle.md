@@ -8,7 +8,6 @@ Basic stage allowing to save the result of a custom hook to a `lifecycle` argume
 The lifecycle hook receives the previous argument map as parameter, and can therefore use props or any other
 injected argument.
 
-
 ## Usage
 
 ```tsx
@@ -20,7 +19,7 @@ const ModularComponent = modularFactory
   .build()
 
 const MyComponent = ModularComponent()
-  .withLifecycle(() => {
+  .withLifecycle(({ props }) => {
     // Write component state & logic here
   })
   .withRender(({ props, lifecycle }) => (
@@ -28,36 +27,32 @@ const MyComponent = ModularComponent()
   ))
 ```
 
-## Multiple calls
-
-`withLifecycle` is a **single** stage, further calls to the stage will _replace_ the stage definition in its original place.
-
-This allows switching the lifecycle implementation logic while keeping its interface stable, either for reusing the render
-phase, or for testing purposes.
-
-```tsx
-const SimpleComponent = ModularComponent()
-  .withLifecycle(() => React.useState(false))
-  .withRender(({ lifecycle }) => (
-    <div>
-      <span>Current state: {lifecycle[0] ? 'true' : 'false'}</span>
-      <button onClick={() => lifecycle[1](v => !v)}>Toggle</button>
-    </div>
-  ))
-
-// Override lifecycle with a default value for testing purposes
-const ControlledRender = SimpleComponent.withLifecycle([true, mock()])
-```
-
 ## Implementation
 
-`withLifecycle` is a very straightforward stage that does not transformation nor impose any restriction on the generated
-format. Its definition is therefore a simple field mapping:
+`withLifecycle` receives a function taking the current arguments map as parameter. In its transform function, the
+passed value is called with the current arguments map:
 
 ```ts
 import { createMethodRecord } from '@modular-component/core'
 
+const withLifecycle = Symbol()
+
+declare module '@modular-component/core' {
+  export interface ModularStages<Args, Value> {
+    [withLifecycle]: {
+      restrict: (args: Args) => unknown
+      transform: Value extends (args: Args) => infer T ? T : never
+    }
+  }
+}
+
 export const WithLifecycle = createMethodRecord({
-  withLifecycle: { field: 'lifecycle' },
+  Lifecycle: {
+    symbol: withLifecycle,
+    field: 'lifecycle',
+    transform: (args, useLifecycle) => {
+      return useLifecycle(args)
+    },
+  },
 } as const)
 ```

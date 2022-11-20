@@ -11,8 +11,8 @@ This is permitted by two characteristics of `ModularComponent`:
 
 - The factory is immutable, meaning that each new stage addition creates a brand-new component, leaving the previous
   one untouched,
-- Most stages run in **single** mode, meaning that calling a stage again _replaces the previous implementation at its 
-  current position in the pipeline_, rather than adding a new stage.
+- The `with` stage methods allow _replacing the previous implementation at its current position in the pipeline_, 
+  rather than always adding a new stage.
 
 Thanks to that, it's possible to take a full-fledged component, and replace only specific stages to create a slightly
 different component. For instance, once could replace the lifecycle stage of a component while keeping the render stage
@@ -105,7 +105,7 @@ Our logic and props type are reusable without having to pass a function and type
 
 ## Replacing a custom stage
 
-There are also cases where a shared render stage (and even shared custom stages) make a lot of sense. Let's take a concrete
+There are also cases where a shared render stage (and even shared custom stages) makes a lot of sense. Let's take a concrete
 example: an application with a signup confirmation flow, and a password reinitialisation flow. Both those flows share
 two steps in common: 
 
@@ -122,6 +122,7 @@ All of this can easily be done using `ModularComponent`, with minimal duplicatio
 
 ```tsx
 export const SignupConfirmationEmailSent = ModularComponent()
+  // Localization data for our signup confirmation screen
   .withLocale('screens.signup.confirmation-email-sent')
   .withDefaultProps({
     resendEmail: () => {

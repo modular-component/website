@@ -58,29 +58,28 @@ const typedHooks = createTypedHooks<typeof model>()
 
 const withStore = Symbol()
 
+declare module '@modular-component/core' {
+  export interface ModularStages<Args, Value> {
+    [withStore]: {
+      restrict: undefined
+      transform: typeof typedHooks
+    }
+  }
+}
+
 export const WithStore = createStageRecord({
   field: 'store',
   symbol: withStore,
-  restrict: undefined,
   transform: () => {
     return typedHooks
   }
 })
-
-declare module '@modular-component/core' {
-  export interface ModularStageTransform<T> {
-    [withStore]: typeof typedHooks
-  }
-}
 ```
 
 Our stage takes no parameter, as it always returns the same value. It acts as a provider. We instruct TypeScript to let
 us call that stage without parameter through `restrict: undefined`.
 
 Its transform function simply inject our hooks created with `createTypedHooks`, in the `store` field.
-
-Finally, we add an overload to `ModularStageTransform` to tell TypeScript what value is set to our field through our
-transform function.
 
 Now, whenever any component needs to consume our store, we don't need to worry about another import, we can simply add
 a stage to our factory.
@@ -116,26 +115,27 @@ const StoreAwareComponent = ModularComponent()
 While what we achieved so far is already nice, we can improve things a bit to make our store even more straightforward to use.
 
 One thing that I personally observed when using Easy-Peasy, is that I very rarely use the `useStoreAction` hook. The reason
-for this is that your actions are naturally immutable, so `useStoreAction` don't bring any memoization to the table. Furthemore,
+for this is that your actions are naturally immutable, so `useStoreAction` don't bring any memoization to the table. Furthermore,
 we have access to the entire store object through `useStore`, which gives us access to those same actions through `getActions()`.
 
 Because of this, I use `useStoreState` a lot to _subscribe to values_, and then simply use `useStore` and pass the `Store`
 object itself around in my effects and callbacks. A nice side-effect from that is that I don't need to change my 
 dependency array if I'm in need of a different actions later on in the same callback or effect.
 
-Taking inspiration from that, we could create an abstraction hook that would allow us access to the store with a slightly
+Taking inspiration from that, we could create an abstraction hook that would grant us access to the store with a slightly
 different API:
 
 ```tsx
 // Helper hook
 function useEasyPeasy() {
   const raw = useStore()
-  
-  const act = raw.getActions
-  const get = raw.getState
-  const use = useStoreState
-  
-  return useMemo(() => ({ raw, act, get, use }), [raw, act, get, use])
+
+  return useMemo(() => ({ 
+    raw, 
+    act: raw.getActions,
+    get: raw.getState, 
+    use: useStoreState
+  }), [raw])
 }
 
 // Usage in a component
@@ -179,18 +179,20 @@ import { useEasyPeasy } from './use-easy-peasy'
 
 const withStore = Symbol()
 
+declare module '@modular-component/core' {
+  export interface ModularStageTransform<T> {
+    [withStore]: {
+      restrict: undefined
+      transform: ReturnType<typeof useEasyPeasy>
+    }
+  }
+}
+
 export const WithStore = createStageRecord({
   field: 'store',
   symbol: withStore,
-  restrict: undefined,
   transform: useEasyPeasy
 })
-
-declare module '@modular-component/core' {
-  export interface ModularStageTransform<T> {
-    [withStore]: ReturnType<typeof useEasyPeasy>
-  }
-}
 ```
 
 And here is what using it would look like in a component:
@@ -226,4 +228,4 @@ const StoreAwareComponent = ModularComponent()
 Through this simple example, we've seen how `ModularComponent` can help you reduce clutter across your app by embracing
 the injection mechanism, making your factory the only import needed to connect your component to your application's context.
 
-You can also check our other case study about [configuring your internationalization system as a stage](./using-internationalisation.md).
+You can also check our other case study about [configuring your internationalization system as a stage](./using-internationalization.md).

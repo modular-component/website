@@ -32,7 +32,7 @@ const MyDynamicProps = ModularComponent<{
   canEdit?: boolean, 
   canDelete?: boolean 
 }>()
-  .withDefaultProsp(({ props }) => ({
+  .withDefaultProps(({ props }) => ({
     canEdit: ['owner', 'admin'].includes(props.role),
     canDelete: ['owner'].includes(props.role)
   }))
@@ -44,28 +44,44 @@ const MyDynamicProps = ModularComponent<{
   })
 ```
 
-## Multiple calls
-
-`withDefaultProps` is a **single** stage, further calls to the stage will _replace_ the stage definition in its original place.
-
-Further calls need to at least define the same values as previous calls to ensure the contract is honored.
-
 ## Implementation
 
 `withDefaultProps` runs a custom transform function to shallowly merge the default props to the received component props.
-Accepted values are restricted to an object type, since we need to be able to spread it.
+Accepted values are restricted to a partial map of the original props to only accept correct types for defined props.
+The value can also be a function of the current args.
 
 ```tsx
 import { createMethodRecord } from '@modular-component/core'
 
+const withDefaultProps = Symbol()
+
+declare module '@modular-component/core' {
+  export interface ModularStages<Args, Value> {
+    [withDefaultProps]: {
+      restrict:
+        | Partial<Args extends { props: infer P } ? P : {}>
+        | ((args: Args) => Partial<Args extends { props: infer P } ? P : {}>)
+      transform: Value extends ((args: Args) => infer T) | infer T
+        ? Args extends { props: infer P }
+          ? {
+              [key in keyof T]: key extends keyof P
+                ? NonNullable<P[key]>
+                : T[key]
+            }
+          : Value
+        : never
+    }
+  }
+}
+
 export const WithDefaultProps = createMethodRecord({
-  withDefaultProps: {
+  DefaultProps: {
+    symbol: withDefaultProps,
     field: 'props',
-    transform: <A extends { props: {} }, P>(args: A, props: P) => ({
-      ...(typeof props == 'function' ? props(args) : props),
+    transform: <A extends { props: {} }, P>(args: A, useProps: P) => ({
+      ...(typeof useProps === 'function' ? useProps(args) : useProps),
       ...args.props,
     }),
-    restrict: {} as Record<string, unknown>,
   },
 } as const)
 ```

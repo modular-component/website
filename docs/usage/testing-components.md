@@ -33,8 +33,8 @@ tested in isolation. But this only delays the problem, as testing the final comp
 logic and the internal state from the hook.
 
 With `ModularComponent`, all this fades away thanks to **component stage isolation and mocking**. Each stage can easily
-be isolated from the rest of the pipeline (or at least, the _downstream stages_), and **single-mode upstream stages** can
-be mocked.
+be isolated from the rest of the pipeline by mocking upstream stages with `mock` stage methods, and removing downstream
+stages with `at` stage methods.
 
 In this document, we'll look at a simple login form component, looking like this:
 
@@ -104,7 +104,7 @@ const LoginForm = ModularComponent()
 ```
 
 The `withRouter` and `withServices` are imaginary custom stages that inject the routing mechanism and our backend
-services into the argument map. `withLocale` is a localization stage that turns localization codes into strings.
+services into the argument map. `withLocale` is a localization stage that turns localization codes into localized strings.
 
 In our tests, we want to make sure of a few things:
 
@@ -116,7 +116,7 @@ In our tests, we want to make sure of a few things:
 - Our HTML form elements are linked to our state
 - The correct messages are read from our localization system
 
-The first four elements are _logic tests_, and thanks to our modular architecture, are the sole responsibility of
+The first four items are _logic tests_, and thanks to our modular architecture, are the sole responsibility of
 the **lifecycle stage**. The last three are _UI tests_, and are the responsibility of the **render stage**.
 
 Now let's see how `ModularComponent` helps us test each point easily.
@@ -127,7 +127,9 @@ We will write our tests stage by stage, from top to bottom. The first part is te
 a look at the upstream stages consumed by the lifecycle:
 
 ```tsx 
+  // Depends on services 👇...
   .withLifecycle(({ services, router }) => ...
+  // ... and on a routing system 👆
 ```
 
 As we can see, our lifecycle depends on our backend services, and our routing system. Thankfully, both of those stages
@@ -147,13 +149,13 @@ const mocks = {
 }
 
 const TestLifecycle = LoginForm
-  .mockStage('withRouter', mocks.router)
-  .mockStage('withServices', mocks.services)
+  .mockRouter(mocks.router)
+  .mockServices(mocks.services)
 ```
 
 With this, we've successfully isolated the lifecycle from its already-tested upstream stages. Now let's isolate it
-from its _downstream stages_ too, and extract its returned value as a hook. This can be done by chaining the `atStage`
-and `asHook` methods:
+from its _downstream stages_ too, and extract its returned value as a hook. This can be done by chaining the `at{Stage}`
+and `asUse{Argument}` methods:
 
 ```tsx
 
@@ -162,10 +164,10 @@ const mocks = {
 }
 
 const useLifecycle = LoginForm
-  .mockStage('withRouter', mocks.router)
-  .mockStage('withServices', mocks.services)
-  .atStage('withLifecycle')
-  .asHook('lifecycle')
+  .mockRouter(mocks.router)
+  .mockServices(mocks.services)
+  .atLifecycle()
+  .asUseLifecycle()
 ```
 
 And there we have it: a perfectly isolated `useLifecycle` hook that can be tested in isolation, just as if we'd written
@@ -300,7 +302,9 @@ easily be done by _mocking the stages required by the render_.
 Once again, let's look at what stages our render phase requires:
 
 ```tsx 
+  // Use the lifecycle 👇...
   .withRender(({ lifecycle, locale }) => ...
+  // ... and a locale system  👆
 ```
 
 In order to isolate our render, we can mock the lifecycle and locale stages. Mocking the locale stage is optional,
@@ -328,8 +332,8 @@ const mocks = {
 }
 
 const Component = LoginForm
-  .mockStage('withLocale', () => mocks.locale)
-  .mockStage('withLifecycle', mocks.lifecycle)
+  .mockLocale(mocks.locale)
+  .mockLifecycle(mocks.lifecycle)
 ```
 
 With this, we get our render stage isolated from its upstream stages, with full control on values passed down through
@@ -440,7 +444,7 @@ it('should render a default value for unknwon errors', () => {
   expect(getByText('unknown-error')).toExist()
 })
 
-it('should not render errors at all when its empty', () => {
+it('should not render errors at all when it\'s empty', () => {
   // Arrange
   mocks.locale.implementation((key: string) => key)
   mocks.lifecycle.error = ''
@@ -462,7 +466,7 @@ are now covered and tested, without having one leak into the other, keeping our 
 
 Our simple component only uses intrinsic HTML elements, but often our components are composed of other components too.
 
-Let's imagine that we want to replace the inputs in our example with a custom dedicated `Input` components:
+Let's imagine that we want to replace the inputs in our example with custom dedicated `Input`s components:
 
 ```tsx
 <form onSubmit={lifecycle.handleSubmit}>
@@ -484,6 +488,7 @@ Let's imagine that we want to replace the inputs in our example with a custom de
 Now it's possible that those components have some internals that make it difficult to test our form without knowing
 the internal behavior of the components. Our tests would become tightly coupled, and we don't want that. 
 Here for instance, we cannot reliably know how to select the actual HTML input or to trigger the `onChange` callback.
+But what if we could select the _component instance_ instead, and manually trigger callback props?
 
 For this use-case, we could use a component stage to easily allow mocking our sub-components without relying on module
 mocking. For that, let's update our component:
@@ -532,7 +537,7 @@ For instance, we could reduce them to standard inputs:
 
 ```tsx
 const Component = LoginForm
-  .mockStage('withComponents', { EmailInput: 'input', PasswordInput: 'input' })
+  .mockComponents({ EmailInput: 'input', PasswordInput: 'input' })
   ...
 ```
 
@@ -549,7 +554,7 @@ const mocks = {
 }
 
 const Component = LoginForm
-  .mockStage('withComponents', mocks.components)
+  .mockComponents(mocks.components)
   ...
 ```
 

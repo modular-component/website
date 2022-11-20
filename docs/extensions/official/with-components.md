@@ -7,7 +7,7 @@ sidebar_position: 4
 Provides a `withComponents` stage that fills the `components` argument with
 a map of React components. Useful when running tests in an environment that
 does not allow module mocking: sub-components can be stubbed in tests by
-calling the stage again to replace their implementations.
+mocking the stage to replace their implementations.
 
 ## Usage
 
@@ -28,12 +28,12 @@ const MyComponent = ModularComponent()
   ))
 ```
 
-## Multiple calls
+## Replacing sub-components
 
-`withComponents` is a **single** stage, further calls to the stage will _replace_ the stage definition in its original place.
-
-It allows creating a clone of the component with a different sub-component implementation, either for tests or for content.
-For instance, one could imagine a `Layout` base component taking advantage of this functionnality:
+Replacing sub-components can be done either by updating or mocking the stage.
+It allows creating a clone of the component with a different sub-component implementation,
+either for tests or for content. 
+For instance, one could imagine a `Layout` base component taking advantage of this functionality:
 
 ```tsx
 const PageLayout = ModularComponent()
@@ -64,18 +64,25 @@ const PageTwo = PageLayout.withComponent({
 
 ## Implementation
 
-`withComponents` is a simple stage adding the map as a `component` argument. It has a restriction
-on accepted values, to only accept a map of React components.
+`withComponents` is a simple stage adding the provided record as a `components` argument. It has a restriction
+on accepted values, to only accept a record of React components.
 
 ```tsx
 import { ComponentType } from 'react'
 
 import { createMethodRecord } from '@modular-component/core'
 
+const withComponents = Symbol()
+
+declare module '@modular-component/core' {
+  export interface ModularStages<Args, Value> {
+    [withComponents]: {
+      restrict: Record<string, ComponentType>
+    }
+  }
+}
+
 export const WithComponents = createMethodRecord({
-  withComponents: {
-    field: 'components',
-    restrict: {} as Record<string, ComponentType<any>>,
-  },
+  Components: { symbol: withComponents, field: 'components' },
 } as const)
 ```

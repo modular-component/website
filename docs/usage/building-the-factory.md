@@ -29,7 +29,7 @@ Setting up a factory that allows components to hook into your specific applicati
 
 ### Using published extensions
 
-For some use cases, it's possible to use pre-configured stage methods to build your factory. For instance, the `ModularComponent` team maintain a list of
+For some use cases, it's possible to use pre-configured stage methods to build your factory. For instance, the `ModularComponent` team maintains a list of
 [official extensions](../extensions/official/official.md) for the most common use cases.
 
 The convention for published extensions is to export **stage records**, which are maps of stage function names to stage function configurations.
@@ -153,7 +153,7 @@ export const ViewComponent = viewFactory.build()
 ### For modular hooks
 
 Some people might also like to use `ModularComponent` to write their hooks, in order to take advantage of specific stages.
-A dedicated hook factory would most likely not need the default stages and `withComponents` stage.
+A dedicated hook factory would most likely not need stages such as the `withComponents` stage.
 
 ```ts
 import { modularFactory } from '@modular-component/core'
@@ -164,14 +164,14 @@ import { WithComponents } from '@modular-component/with-components'
 // Custom extension connecting to an eventual global store
 import { WithStore } from './store/stage-method'
 
-const sharedFactory = modularFactory
+const hookFactory = modularFactory
+  .extend(WithDefaultStages)
   .extend(WithStore)
 
-const componentFactory = sharedFactory
-  .extend(WithDefaultStages)
+const componentFactory = hookFactory
   .extend(WithComponents)
 
-export const ModularHook = sharedFactory.build()
+export const ModularHook = hookFactory.build()
 export const ModularComponent = componentFactory.build()
 ```
 
