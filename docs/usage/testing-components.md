@@ -490,7 +490,7 @@ the internal behavior of the components. Our tests would become tightly coupled,
 Here for instance, we cannot reliably know how to select the actual HTML input or to trigger the `onChange` callback.
 But what if we could select the _component instance_ instead, and manually trigger callback props?
 
-For this use-case, we could use a component stage to easily allow mocking our sub-components without relying on module
+For this use-case, we could use a components stage to easily allow mocking our sub-components without relying on module
 mocking. For that, let's update our component:
 
 ```tsx

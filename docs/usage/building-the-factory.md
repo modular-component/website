@@ -64,10 +64,17 @@ import { modularFactory, createStageRecord } from '@modular-component/core'
 import { WithDefaultStages } from '@modular-component/default'
 import { WithComponents } from '@modular-component/with-components'
 
+// Exported custom extension connecting to an eventual global store
 import { WithStore } from './store/stage-method'
 
+// Unique symbols identifying our stages
+const withVariable = Symbol()
+const withInline = Symbol()
+
+// Local custom extension adding an hypothetic `withVariable` stage
 const WithVariable = createStageRecord({
-  withVariable: {
+  Variable: {
+    symbol: withVariable,
     field: 'variable'
   }
 })
@@ -77,8 +84,12 @@ const factoryBuilder = modularFactory
   .extend(WithComponents)
   .extend(WithStore)
   .extend(WithVariable)
+  // Inline custom extension adding an hypothetic `withInline` stage
   .extend({
-    withInline: { field: 'inline' }
+    Inline: {
+      symbol: withInline,
+      field: 'inline'
+    }
   })
 ```
 
@@ -97,25 +108,9 @@ import { modularFactory, createStageRecord } from '@modular-component/core'
 import { WithDefaultStages } from '@modular-component/default'
 import { WithComponents } from '@modular-component/with-components'
 
-// Exported custom extension connecting to an eventual global store
-import { WithStore } from './store/stage-method'
-
-// Local custom extension adding an hypothetic `withVariable` stage
-const WithVariable = createStageRecord({
-  withVariable: {
-    field: 'variable'
-  }
-})
-
 const factoryBuilder = modularFactory
   .extend(WithDefaultStages)
   .extend(WithComponents)
-  .extend(WithStore)
-  .extend(WithVariable)
-  // Inline custom extension adding an hypothetic `withInline` stage
-  .extend({
-    withInline: { field: 'inline' }
-  })
 
 export const ModularComponent = factoryBuilder.build()
 ```
@@ -137,7 +132,6 @@ import { WithDefaultStages } from '@modular-component/default'
 import { WithComponents } from '@modular-component/with-components'
 
 import { WithStore } from './store/stage-method'
-
 
 const sharedFactory = modularFactory
   .extend(WithDefaultStages)
@@ -161,7 +155,6 @@ import { modularFactory } from '@modular-component/core'
 import { WithDefaultStages } from '@modular-component/default'
 import { WithComponents } from '@modular-component/with-components'
 
-// Custom extension connecting to an eventual global store
 import { WithStore } from './store/stage-method'
 
 const hookFactory = modularFactory
