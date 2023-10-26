@@ -6,8 +6,8 @@ sidebar_position: 1
 
 Set of sensible defaults for using `ModularComponent`. 
 
-Provides two stages: `withLifecycle` for adding a lifecycle hook, and `withDefaultProps` for
-providing default values for props.
+Provides two stages: `with(lifecycle)` for adding a lifecycle hook, and `with(defaultProps)` for
+providing default values for props. It also re-exports `with(render)` from `@modular-component/props` for convenience.
 
 It's also possible to import each of them individually through [`@modular-component/with-lifecycle`](./with-lifecycle.md)
 and <br /> [`@modular-component/with-default-props`](./with-default-props.md) respectively.
@@ -15,23 +15,19 @@ and <br /> [`@modular-component/with-default-props`](./with-default-props.md) re
 ## Usage
 
 ```tsx
-import { modularFactory } from '@modular-component/core'
-import { WithDefaultStages } from '@modular-component/default'
-
-const ModularComponent = modularFactory
-  .extend(WithDefaultStages)
-  .build()
+import { ModularComponent } from '@modular-component/core'
+import { defaultProps, lifecycle, render } from '@modular-component/default'
 
 const MyComponent = ModularComponent()
-  .withDefaultProps({
+  .with(defaultProps({
     // Define default props here
-  })
-  .withLifecycle(() => {
+  }))
+  .with(lifecycle(() => {
     // Write component state & logic here
-  })
-  .withRender(({ props, lifecycle }) => (
+  }))
+  .with(render(({ props, lifecycle }) => (
     // Use generated props and lifecycle in the render phase
-  ))
+  )))
 ```
 
 ## Implementation

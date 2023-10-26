@@ -11,48 +11,29 @@ injected argument.
 ## Usage
 
 ```tsx
-import { modularFactory } from '@modular-component/core'
-import { WithLifecycle } from '@modular-component/with-lifecycle'
-
-const ModularComponent = modularFactory
-  .extend(WithLifecycle)
-  .build()
+import { ModularComponent } from '@modular-component/core'
+import { lifecycle } from '@modular-component/with-lifecycle'
 
 const MyComponent = ModularComponent()
-  .withLifecycle(({ props }) => {
+  .with(lifecycle(({ props }) => {
     // Write component state & logic here
-  })
-  .withRender(({ props, lifecycle }) => (
+  }))
+  .with(render(({ props, lifecycle }) => (
     // Use computed lifecycle in the render phase
-  ))
+  )))
 ```
 
 ## Implementation
 
-`withLifecycle` receives a function taking the current arguments map as parameter. In its transform function, the
-passed value is called with the current arguments map:
+`with(lifecycle)` receives a function taking the current arguments map as parameter. It uses this function as the
+stage hook directly:
 
 ```ts
-import { createMethodRecord } from '@modular-component/core'
+import { ModularStage } from '@modular-component/core'
 
-const withLifecycle = Symbol()
-
-declare module '@modular-component/core' {
-  export interface ModularStages<Args, Value> {
-    [withLifecycle]: {
-      restrict: (args: Args) => unknown
-      transform: Value extends (args: Args) => infer T ? T : never
-    }
-  }
+export function lifecycle<Args extends {}, Return>(
+  useLifecycle: (args: Args) => Return,
+): ModularStage<'lifecycle', (args: Args) => Return> {
+  return { field: 'lifecycle', useStage: useLifecycle }
 }
-
-export const WithLifecycle = createMethodRecord({
-  Lifecycle: {
-    symbol: withLifecycle,
-    field: 'lifecycle',
-    transform: (args, useLifecycle) => {
-      return useLifecycle(args)
-    },
-  },
-} as const)
 ```

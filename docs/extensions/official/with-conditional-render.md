@@ -6,132 +6,84 @@ sidebar_position: 5
 
 Provides three stages that allow conditional rendering in `ModularComponent`s:
 
-- `withCondition` will set a `condition` argument to either `true` or `false`, based
+- `with(condition)` will set a customizable argument to either `true` or `false`, based
   on current arguments,
-- `withConditionalFallback` takes a `FunctionComponent` as parameter, and
-  renders it when the `condition` argument is set to `false`,
-- `withConditionalRender` also takes a `FunctionComponent` as parameter, and
-  renders it when the `condition` argument is _not_ set to `false`.
-
-Calls to `addCondition` will take into account preceding conditions, so that `withConditionalRender`
-is only called when all conditions return `true`.
-
-Calls to `addConditionalFallback` will take into account preceding fallbacks, so that only the _first_ falsy-condition
-fallback is rendered.
+- `with(conditionalFallback)` takes a `FunctionComponent` as parameter, and
+  renders it when a customizable argument is set to `true`, filling the `render` argument in the process,
+- `with(conditionalRender)` also takes a `FunctionComponent` as parameter, and
+  renders it if the `render` argument was not filled earlier.
 
 ## Usage
 
 ```tsx
-import { modularFactory } from '@modular-component/core'
-import { WithConditionalRender } from '@modular-component/with-conditional-render'
-
-const ModularComponent = modularFactory
-  .extend(WithConditionalRender)
-  .build()
+import { ModularComponent } from '@modular-component/core'
+import { condition, conditionalFallback, conditionalRender } from '@modular-component/with-conditional-render'
 
 const ConditionalComponent = ModularComponent<{ enabled?: boolean }>()
-  .withCondition(({ props }) => props.enabled === true)
-  .withConditionalFallback(() => <>I'm disabled!</>)
-  .withLifecycle(() => {
+  .with(condition('disabled', ({ props }) => props.enabled !== true))
+  .with(conditionalFallback('disabled', () => <>I'm disabled!</>))
+  .with(lifecycle(() => {
     // Some data fetching logic...
     return { loading, data }
-  })
-  .addCondition(({ lifecycle }) => lifecycle.loading === false)
-  .addConditionalFallback(() => <>I'm loading!</>)
-  .withConditionalRender(({ lifecycle }) => (
+  }))
+  .with(condition('loading', ({ lifecycle }) => lifecycle.loading === false))
+  .with(conditionalFallback('loading', () => <>I'm loading!</>))
+  .with(conditionalRender(({ lifecycle }) => (
     <>I'm enabled and loaded, here is the content: {lifecycle.data}</>
-  ))
+  )))
 ```
 
 ## Multiple conditions and fallbacks
 
-`addCondition` and `addFallbackRender` allow chaining multiple conditions with a different fallback for each.
-
-Calls to `addCondition` will take into account preceding conditions,
-so that `addConditionalRender` is only called when all conditions return `true`.
-
-Calls to `addConditionalFallback` will take into account preceding fallbacks, so that only the _first_ falsy-condition
-fallback is rendered.
+You can use the `condition` and `conditionalFallback` multiple times in the same pipeline by providing different
+argument names as the first parameter.
 
 ## Implementation
 
 The implementation for those stages is a bit more involved than other official extensions. Here, we have restrictions
-for each stage, as well as transform functions. Furthermore, the transform functions for `withConditionalRender` and `withConditonalFallback`
-can return `null` instead of the passed value, so we need to register a TypeScript transform for those stages.
+for each stage, as well as stage hooks.
 
 ```tsx
-import { createMethodRecord } from '@modular-component/core'
+import React, { FunctionComponent } from 'react'
+import { ModularStage } from '@modular-component/core'
 
-import { FunctionComponent } from 'react'
+export function condition<Args, Name extends string>(
+  name: Name,
+  useCondition: (args: Args) => boolean,
+): ModularStage<Name, (args: Args) => boolean> {
+  return { field: name, useStage: useCondition }
+}
 
-const withCondition = Symbol()
-const withConditionalFallback = Symbol()
-const withConditionalRender = Symbol()
-
-declare module '@modular-component/core' {
-  export interface ModularStages<Args, Value> {
-    [withCondition]: {
-      restrict: (args: Args) => boolean
-      transform: ReturnType<
-        Value extends (args: Args) => infer T ? T : never
-      >
-    }
-    [withConditionalFallback]: {
-      restrict: FunctionComponent<Args>
-      transform: ReturnType<FunctionComponent<Args>> | null
-    }
-    [withConditionalRender]: {
-      restrict: FunctionComponent<Args>
-      transform: ReturnType<FunctionComponent<Args>> | null
-    }
+export function conditionalFallback<
+  Args extends { [key in Name]: boolean } & {
+    render?: ReturnType<FunctionComponent>
+  },
+  Name extends string,
+>(
+  name: Name,
+  useRender: (args: Args) => ReturnType<FunctionComponent>,
+): ModularStage<`render-${Name}`, (args: Args) => void> {
+  return {
+    field: `render-${name}`,
+    useStage: (args: Args) => {
+      args.render = !args[name] || args.render ? args.render : useRender(args)
+    },
   }
 }
 
-export const WithConditionalRender = createMethodRecord({
-  Condition: {
-    symbol: withCondition,
-    field: 'condition',
-    transform: <
-      A extends { condition?: boolean },
-      C extends (args: A) => boolean,
-    >(
-      args: A,
-      useCondition: C,
-    ) => args.condition !== false && useCondition(args),
-  },
-  ConditionalRender: {
-    symbol: withConditionalRender,
+export function conditionalRender<Args, Ref>(
+  useRender: (
+    args: Args,
+    ref: React.ForwardedRef<Ref>,
+  ) => ReturnType<FunctionComponent>,
+): ModularStage<
+  'render',
+  (args: Args, ref: React.ForwardedRef<Ref>) => ReturnType<FunctionComponent>
+> {
+  return {
     field: 'render',
-    transform: <
-      A extends { condition?: boolean; render?: ReturnType<FunctionComponent> },
-      P extends FunctionComponent<A>,
-    >(
-      args: A,
-      useRender: P,
-    ) => {
-      if (args.condition === false) {
-        return args.render
-      }
-
-      return useRender(args)
-    },
-  },
-  ConditionalFallback: {
-    symbol: withConditionalFallback,
-    field: 'render',
-    transform: <
-      A extends { condition?: boolean; render?: ReturnType<FunctionComponent> },
-      P extends FunctionComponent<A>,
-    >(
-      args: A,
-      useRender: P,
-    ) => {
-      if (args.condition !== false || args.render) {
-        return args.render
-      }
-
-      return useRender(args)
-    },
-  },
-} as const)
+    useStage: (args: Args, ref: React.ForwardedRef<Ref>) =>
+      (args as any).render ?? useRender(args, ref),
+  }
+}
 ```

@@ -7,7 +7,7 @@ sidebar_position: 4
 Finally, the last interesting use-case enabled by using `ModularComponent` is component testing. In particular,
 it allows writing component tests as true **unit-tests**, instead of semi-integration tests.
 
-:::caution
+:::caution Disclaimer
 There are a lot of strategies and advice for testing React components. Some of the things highlighted
 in this section might not make sense in the context of some of those strategies, or could even
 be considered _bad practice_.
@@ -29,12 +29,11 @@ hand fairly quickly.
 
 This can be helped by splitting the form into smaller components of course, where the submit button or form wrapper would
 receive the form state as props ; or it can be improved a bit by extracting the logic into a custom hook, which can get
-tested in isolation. But this only delays the problem, as testing the final component will stil be dependent on the
+tested in isolation. But this only delays the problem, as testing the final component will still be dependent on the
 logic and the internal state from the hook.
 
 With `ModularComponent`, all this fades away thanks to **component stage isolation and mocking**. Each stage can easily
-be isolated from the rest of the pipeline by mocking upstream stages with `mock` stage methods, and removing downstream
-stages with `at` stage methods.
+be isolated from the rest of the pipeline by using a dedicated method: the `stage()` method.
 
 In this document, we'll look at a simple login form component, looking like this:
 
@@ -43,10 +42,10 @@ import { useState } from 'react'
 import { ModularComponent } from './modular-component'
 
 const LoginForm = ModularComponent()
-  .withRouter()
-  .withServices(['userSession'])
-  .withLocale('components.login-form')
-  .withLifecycle(({ services, router }) => {
+  .with(router())
+  .with(services(['userSession']))
+  .with(locale('components.login-form'))
+  .with(lifecycle(({ services, router }) => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
@@ -82,8 +81,8 @@ const LoginForm = ModularComponent()
       handlePasswordChange: handleChange('password'),
       handleSubmit
     }
-  })
-  .withRender(({ lifecycle, locale }) => (
+  }))
+  .with(render(({ lifecycle, locale }) => (
     <form onSubmit={lifecycle.handleSubmit}>
       <input 
         placeholder={locale('placeholders.email')} 
@@ -100,11 +99,11 @@ const LoginForm = ModularComponent()
       { !!lifecycle.error && <span>{locale(lifecycle.error) || locale('unknown-error')}</span> }
       <button type="submit">{locale('submit')}</button>
     </form>
-  ))
+  )))
 ```
 
-The `withRouter` and `withServices` are imaginary custom stages that inject the routing mechanism and our backend
-services into the argument map. `withLocale` is a localization stage that turns localization codes into localized strings.
+The `with(router)` and `with(services)` are imaginary custom stages that inject the routing mechanism and our backend
+services into the argument map. `with(locale)` is a localization stage that turns localization codes into localized strings.
 
 In our tests, we want to make sure of a few things:
 
@@ -123,12 +122,14 @@ Now let's see how `ModularComponent` helps us test each point easily.
 
 ## Testing lifecycle in isolation
 
-We will write our tests stage by stage, from top to bottom. The first part is testing the lifecycle. First, let's take
-a look at the upstream stages consumed by the lifecycle:
+We will write our tests stage by stage, from top to bottom. In our case only two stages contain custom logic: the `lifecycle`
+and `render` stages.
+
+The first part is testing the lifecycle. First, let's take a look at the upstream stages consumed by the lifecycle:
 
 ```tsx 
   // Depends on services 👇...
-  .withLifecycle(({ services, router }) => ...
+  .with(lifecycle(({ services, router }) => ...
   // ... and on a routing system 👆
 ```
 
@@ -147,31 +148,24 @@ const mocks = {
     }
   }
 }
-
-const TestLifecycle = LoginForm
-  .mockRouter(mocks.router)
-  .mockServices(mocks.services)
 ```
 
-With this, we've successfully isolated the lifecycle from its already-tested upstream stages. Now let's isolate it
-from its _downstream stages_ too, and extract its returned value as a hook. This can be done by chaining the `at{Stage}`
-and `asUse{Argument}` methods:
+Now that we've prepared the mocks for the arguments consumed by our stage, we can isolate our stage function
+through the dedicated `stage()` method:
 
 ```tsx
-
 const mocks = {
   // ...
 }
 
-const useLifecycle = LoginForm
-  .mockRouter(mocks.router)
-  .mockServices(mocks.services)
-  .atLifecycle()
-  .asUseLifecycle()
+const useLifecycle = LoginForm.stage('lifecycle')
 ```
 
-And there we have it: a perfectly isolated `useLifecycle` hook that can be tested in isolation, just as if we'd written
-it as a separate function. You can now test it out with your preferred hook testing library. Here is how things could look:
+The generated hook takes in parameter a partial representation of arguments map, allowing you to only pass the upstream stages you know
+to be relevant. We can easily pass it our mocks we generated earlier.
+
+We therefore get a `useLifecycle` hook that can be tested in isolation, just as if we'd written
+it as a separate function. We can now test it out with our preferred hook testing library. Here is how things could look:
 
 <details>
 <summary>Lifecycle tests</summary>
@@ -180,7 +174,7 @@ it as a separate function. You can now test it out with your preferred hook test
 ```tsx
 it('should provide an updatable email field', () => {
   // Arrange
-  const { result } = renderHook(useLifecycle)
+  const { result } = renderHook(() => useLifecycle(mocks))
   
   // Assert initial state
   expect(result.current.email).toEqual('')
@@ -194,7 +188,7 @@ it('should provide an updatable email field', () => {
 
 it('should provide an updatable password field', () => {
   // Arrange
-  const { result } = renderHook(useLifecycle)
+  const { result } = renderHook(() => useLifecycle(mocks))
 
   // Assert initial state
   expect(result.current.password).toEqual('')
@@ -211,7 +205,7 @@ it('should not submit if form fields are empty, and raise an error', () => {
   const { login } = mocks.services.userSession
   login.reset()
   
-  const { result } = renderHook(useLifecycle)
+  const { result } = renderHook(() => useLifecycle(mocks))
   
   // Assert initial state
   expect(login).not.toHaveBeenCalled()
@@ -232,7 +226,7 @@ it('should submit if form fields are set, and navigate upon success', () => {
   const { navigate } = mocks.router
   navigate.reset()
 
-  const { result } = renderHook(useLifecycle)
+  const { result } = renderHook(() => useLifecycle(mocks))
 
   // Assert initial state
   expect(login).not.toHaveBeenCalled()
@@ -262,7 +256,7 @@ it('should submit if form fields are set, and raise an error upon failure', () =
   const { navigate } = mocks.router
   navigate.reset()
 
-  const { result } = renderHook(useLifecycle)
+  const { result } = renderHook(() => useLifecycle(mocks))
 
   // Assert initial state
   expect(login).not.toHaveBeenCalled()
@@ -311,14 +305,6 @@ In order to isolate our render, we can mock the lifecycle and locale stages. Moc
 and it might make sense for your setup to test specific wording and language variant in your unit tests, but let's say
 we mock it here for the sake of documentation.
 
-We don't need to remove downstream stages since the render stage is our last stage already.
-
-:::note
-If we only mock the lifecycle and locale stage, the router and services stage will still run here. Maybe that's fine,
-but maybe you don't want those stages to run at all in your component tests. If that's the case, simply mock them for
-render tests too.
-:::
-
 ```tsx
 const mocks = {
   locale: mock.fn().implementation((key: string) => key),
@@ -331,9 +317,7 @@ const mocks = {
   }
 }
 
-const Component = LoginForm
-  .mockLocale(mocks.locale)
-  .mockLifecycle(mocks.lifecycle)
+const Component = LoginForm.stage('render')
 ```
 
 With this, we get our render stage isolated from its upstream stages, with full control on values passed down through
@@ -351,7 +335,7 @@ it('should render an email input controlled by lifecycle', () => {
   const onChange = mocks.lifecycle.handleEmailChange
   onChange.reset()
 
-  const { getByPlaceholder } = render(<Component />)
+  const { getByPlaceholder } = render(<Component {...mocks} />)
   
   // Assert initial state
   const emailInput = getByPlaceholder('placeholders.email')
@@ -374,7 +358,7 @@ it('should render a password input controlled by lifecycle', () => {
   const onChange = mocks.lifecycle.handlePasswordChange
   onChange.reset()
 
-  const { getByPlaceholder } = render(<Component />)
+  const { getByPlaceholder } = render(<Component {...mocks} />)
 
   // Assert initial state
   const passwordInput = getByPlaceholder('placeholders.password')
@@ -397,7 +381,7 @@ it('should call the submit handler on form submit', () => {
   const onSubmit = mocks.lifecycle.handlePasswordChange
   onSubmit.reset()
 
-  const { getByRole } = render(<Component />)
+  const { getByRole } = render(<Component {...mocks} />)
 
   // Assert initial state
   const submitButton = getByRole('button')
@@ -418,14 +402,14 @@ it('should translate known error codes', () => {
   // Arrange
   mocks.lifecycle.error = 'a-known-error'
   
-  const { getByText, rerender } = render(<Component />)
+  const { getByText, rerender } = render(<Component {...mocks} />)
   
   // Assert
   expect(getByText('a-known-error')).toExist()
 
   // Re-arrange
   mocks.lifecycle.error = 'another-known-error'
-  rerender(<Component />)
+  rerender(<Component {...mocks} />)
   
   // Assert
   expect(getByText('a-known-error')).not.toExist()
@@ -437,7 +421,7 @@ it('should render a default value for unknwon errors', () => {
   mocks.locale.implementation((key: string) => key === 'an-uknown-error-that-will-get-ignored' ? null : key)
   mocks.lifecycle.error = 'an-uknown-error-that-will-get-ignored'
 
-  const { getByText } = render(<Component />)
+  const { getByText } = render(<Component {...mocks} />)
 
   // Assert
   expect(getByText('an-uknown-error-that-will-get-ignored')).not.toExist()
@@ -449,7 +433,7 @@ it('should not render errors at all when it\'s empty', () => {
   mocks.locale.implementation((key: string) => key)
   mocks.lifecycle.error = ''
 
-  const { getByText } = render(<Component />)
+  const { getByText } = render(<Component {...mocks} />)
   
   // Assert
   expect(getByText('unknown-error')).not.toExist()
@@ -501,16 +485,16 @@ import { ModularComponent } from './modular-component'
 import { EmailInput, PasswordInput } from './shared-inputs'
 
 const LoginForm = ModularComponent()
-  .withRouter()
-  .withServices(['userSession'])
-  .withLocale('components.login-form')
+  .with(router())
+  .with(services(['userSession']))
+  .with(locale('components.login-form'))
   // highlight-next-line
-  .withComponents({ EmailInput, PasswordInput })
-  .withLifecycle(({ services, router }) => {
+  .with(components({ EmailInput, PasswordInput }))
+  .with(lifecycle(({ services, router }) => {
     // ... omitted for brevity
-  })
+  }))
   // highlight-next-line
-  .withRender(({ lifecycle, locale, components }) => (
+  .with(render(({ lifecycle, locale, components }) => (
     <form onSubmit={lifecycle.handleSubmit}>
       // highlight-next-line
       <components.EmailInput 
@@ -527,18 +511,19 @@ const LoginForm = ModularComponent()
       { !!lifecycle.error && <span>{locale(lifecycle.error) || locale('unknown-error')}</span> }
       <button type="submit">{locale('submit')}</button>
     </form>
-  ))
+  )))
 ```
 
-Notice how in the render, we use the components injected by the `withComponents` stage. Thanks to that, it becomes
+Notice how in the render, we use the components injected by the `with(components)` stage. Thanks to that, it becomes
 easy to replace them by dummy implementations in our tests.
 
 For instance, we could reduce them to standard inputs:
 
 ```tsx
-const Component = LoginForm
-  .mockComponents({ EmailInput: 'input', PasswordInput: 'input' })
-  ...
+const mocks = {
+  ...,
+  components: { EmailInput: 'input', PasswordInput: 'input' }
+}
 ```
 
 This way, the tests we added previously will keep working, but that only works if the props are compatible.
@@ -547,15 +532,12 @@ A better alternative is to use mocks for components instead:
 
 ```tsx
 const mocks = {
+  ...,
   components: {
     EmailInput: mock.fn().returns(<div data-testid="email-input" />),
     PasswordInput: mock.fn().returns(<div data-testid="password-input" />)
   }
 }
-
-const Component = LoginForm
-  .mockComponents(mocks.components)
-  ...
 ```
 
 Thanks to this, we can now use those mocks in our tests to validate the expected props are passed down:
@@ -565,7 +547,7 @@ it('should render an email input controlled by lifecycle', () => {
   // Arrange
   const emailInput = mocks.components.EmailInput
 
-  const { getByTestId } = render(<Component />)
+  const { getByTestId } = render(<Component {...mocks} />)
   
   // Assert
   expect(getByTestId('email-input')).toExist()

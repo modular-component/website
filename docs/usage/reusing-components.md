@@ -11,8 +11,8 @@ This is permitted by two characteristics of `ModularComponent`:
 
 - The factory is immutable, meaning that each new stage addition creates a brand-new component, leaving the previous
   one untouched,
-- The `with` stage methods allow _replacing the previous implementation at its current position in the pipeline_, 
-  rather than always adding a new stage.
+- The `with` method called on an existing field _replaces the previous implementation at its current position in the pipeline_, 
+  rather than adding a new stage.
 
 Thanks to that, it's possible to take a full-fledged component, and replace only specific stages to create a slightly
 different component. For instance, once could replace the lifecycle stage of a component while keeping the render stage
@@ -84,18 +84,18 @@ Here is how this could look like using `ModularComponent`:
 export const MyWebComponent = ModularComponent<{
   // Inline props type definition
 }>()
-  .withLifecycle(({ props }) => {
+  .with(lifecycle(({ props }) => {
     // Shared logic, can consume the props
-  })
-  .withRender(({ props, lifecycle }) => (
+  }))
+  .with(render(({ props, lifecycle }) => (
     // Web-specific interface, can consume the props and the state
-  ))
+  )))
 
 export const MyNativeComponent = MyWebComponent
   // Replace only the render stage
-  .withRender(({ props, lifecycle }) => (
+  .with(render(({ props, lifecycle }) => (
     // React native-specific interface, can consume the props and the state
-  ))
+  )))
 ```
 
 This is even better! Now we only have two variables to jungle with, and those are the two components we wanted to create
@@ -123,27 +123,27 @@ All of this can easily be done using `ModularComponent`, with minimal duplicatio
 ```tsx
 export const SignupConfirmationEmailSent = ModularComponent()
   // Localization data for our signup confirmation screen
-  .withLocale('screens.signup.confirmation-email-sent')
-  .withDefaultProps({
+  .with(locale('screens.signup.confirmation-email-sent'))
+  .with(defaultProps({
     resendEmail: () => {
       // Logic to resend the email for signup confirmation
     }
-  })
-  .withLifecycle(({ props }) => {
+  }))
+  .with(lifecycle(({ props }) => {
     // Shared screen logic: opening the "resend email" confirmation modal, calling props.resendEmail when needed...
-  })
-  .withRender(({ props, lifecycle, locale }) => (
+  }))
+  .with(render(({ props, lifecycle, locale }) => (
     // Shared render: consume the passed locale for the copy, has access to props and the lifecycle logic
-  ))
+  )))
 
 export const PasswordResetConfirmationEmailSent = SignupConfirmationEmailSent
   // Replace the locale with the password-reset variant. As long as the keys are the same, the render will keep working
-  .withLocale('screens.password-reset.confirmation-email-sent')
-  .withDefaultProps({
+  .with(locale('screens.password-reset.confirmation-email-sent'))
+  .with(defaultProps({
     resendEmail: () => {
       // Different logic to resend the email for password reset
     }
-  })
+  }))
 ```
 
 As we can see, the `PasswordResetConfirmationEmailSent` implementation is really simple, reusing both the lifecycle

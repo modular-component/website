@@ -33,29 +33,20 @@ used when dynamically loading translations.
 
 Rather than importing `useTranslation` from `i18next-react` everywhere localization is needed, we can take advantage of
 `ModularComponent` injection system. In this case study, we will focus on the returned `t` function, but you could create
-a different transform function if you want to keep access to the `i18n` and `ready` values.
+a different stage function if you want to keep access to the `i18n` and `ready` values.
 
 For our case, here is how we would create the custom stage:
 
 ```tsx
-const withLocale = Symbol()
+import { TFunction } from 'i18next'
+import { useTranslation } from 'i18next-react'
 
-declare module '@modular-component/core' {
-  export interface ModularStages<Args, Value> {
-    [withLocale]: {
-      transform: TFunction<'translation'>
-      restrict?: undefined
-    }
+export function locale(): ModularComponent<'locale', TFunction<'translation'>> {
+  return { 
+    field: 'locale',
+    useStage: () => useTranslation('translation').t,
   }
 }
-
-const stages = createMethodRecord({
-  Locale: {
-    symbol: withLocale,
-    field: 'locale',
-    transform: () => useTranslation('translation').t,
-  },
-})
 ```
 
 This simple stage simply calls the `useTranslation` hook with the default namespace, and returns the `t` function. It then
@@ -65,13 +56,13 @@ This allows us to easily used localized strings in our other stages, such as the
 
 ```tsx
 const AppTitle = ModularComponent()
-  .withLocale()
-  .withRender(({ locale }) => (
+  .with(locale())
+  .with(render(({ locale }) => (
     <>
       <h1>{locale('components.app-title.title')}</h1>
       <h2>{locale('components.app-title.subtitle')}</h2>
     </>
-  ))
+  )))
 ```
 
 ## Embracing component prefixes
@@ -83,43 +74,34 @@ We can set up our stage to optionally take this prefix as parameter, allowing us
 
 ```tsx
 import { TFunction, TFuncKey } from 'i18next'
+import { useTranslation } from 'i18next-react'
 
-const withLocale = Symbol()
-
-declare module '@modular-component/core' {
-  export interface ModularStages<Args, Value> {
-    [withLocale]: {
-      // highlight-next-line
-      transform: TFunction<'translation', Value>
-      // highlight-next-line
-      restrict?: TFuncKey
-    }
+export function locale<Key extends TFuncKey<'translation'> = never>(
+  key?: Key,
+): ModularStage<
+  'locale',
+  () => [Key] extends [never] 
+    ? TFunction<'translation'> 
+    : TFunction<'translation', Key>
+> {
+  return {
+    field: 'locale',
+    useStage: () => useTranslation('translation', { keyPrefix: key }).t,
   }
 }
-
-const stages = createMethodRecord({
-  Locale: {
-    symbol: withLocale,
-    field: 'locale',
-    // highlight-next-line
-    transform: (_, keyPrefix: TFuncKey) =>
-      // highlight-next-line
-      useTranslation('translation', { keyPrefix }).t,
-  },
-})
 ```
 
 With this, we can simplify our component implementation by moving the common prefix to the stage initialization:
 
 ```tsx
 const AppTitle = ModularComponent()
-  .withLocale('components.app-title')
-  .withRender(({ locale }) => (
+  .with(locale('components.app-title'))
+  .with(render(({ locale }) => (
     <>
       <h1>{locale('title')}</h1>
       <h2>{locale('subtitle')}</h2>
     </>
-  ))
+  )))
 ```
 
 It then becomes really easy to implement shared practices around the application, scoping locales to a component's path
@@ -132,32 +114,39 @@ an existing component and change the locale's prefix to alter the rendered text.
 title inherit the implementation of our main application title:
 
 ```tsx
-const SubPageTitle = AppTitle.withLocale('components.sub-page-title')
+const SubPageTitle = AppTitle.with(locale('components.sub-page-title'))
 ```
 
 However, using the current setup for our stage, TypeScript will actually let us replace the prefix by any other valid
 translation key, instead of limiting it to prefixes for which the same scoped keys exist. Here, we would like to
 restrict this, so that switching the prefix is only possible if it does not break the render.
 
-Most of the time, this is done automatically by TypeScript by comparing the result of the `transform` function for the
+Most of the time, this is done automatically by TypeScript by comparing the result of the `useStage` function for the
 previous stage value and the newly passed value. However, in this case, the `TFunction` type is not strict enough to 
-cover our needs. When this happens, we can provide an additional type definition to our stage through the `validate`
-property, which can work as a stricter alternative to the `transform` type.
+cover our needs. But we can go around it by modifying slightly the type of the returned function when a key is set:
 
 ```tsx
-declare module '@modular-component/core' {
-  export interface ModularStages<Args, Value> {
-    [withLocale]: {
-      transform: TFunction<'translation', Value>
-      // highlight-next-line
-      validate: (key: TFuncKey<'translation', Value>) => void
-      restrict?: TFuncKey
-    }
+import { TFunction, TFuncKey } from 'i18next'
+import { useTranslation } from 'i18next-react'
+
+export function locale<Key extends TFuncKey<'translation'> = never>(
+  key?: Key,
+): ModularStage<
+  'locale',
+  () => [Key] extends [never] ? TFunction<'translation'> :
+    // highlight-next-line
+    | TFunction<'translation', Key>
+    // highlight-next-line
+    | ((key: TFuncKey<'translation', Key>) => string)
+> {
+  return {
+    field: 'locale',
+    useStage: () => useTranslation('translation', { keyPrefix: key }).t,
   }
 }
 ```
 
-With this `validate` definition, only prefixes yielding compatible sub-selectors will be accepted when replacing a stage.
+By adding this stricter restriction through a union type, we keep the original behavior, but only prefixes yielding compatible sub-selectors will be accepted when replacing a stage.
 
 ## Conclusion
 

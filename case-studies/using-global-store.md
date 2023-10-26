@@ -43,51 +43,35 @@ imports to files in your codebase can quickly get messy with relative paths.
 
 ## Improving things with `ModularComponent`
 
-With a custom stage, we can allow any component to receive your typed store hooks, without needing a further import.
+With a custom stage, we can allow any component to receive your typed store hooks, without needing a further import source.
 It's a good first step, and even though it does not bring tremendous value, cleaning up your codebase is always nice.
 
-Here is our custom stage definition:
+Here is our custom stage function:
 
 ```tsx 
-import { createStageRecord } from '@modular-component/core'
+import { ModularStage } from '@modular-component/core'
 import { createTypedHooks } from 'easy-peasy'
 
 import { model } from './store/model'
 
 const typedHooks = createTypedHooks<typeof model>()
 
-const withStore = Symbol()
-
-declare module '@modular-component/core' {
-  export interface ModularStages<Args, Value> {
-    [withStore]: {
-      restrict: undefined
-      transform: typeof typedHooks
-    }
-  }
+export function store(): ModularStage<'store', () => typeof typedHooks> {
+  return { field: 'store', useStage: () => typedHooks }
 }
-
-export const WithStore = createStageRecord({
-  field: 'store',
-  symbol: withStore,
-  transform: () => {
-    return typedHooks
-  }
-})
 ```
 
-Our stage takes no parameter, as it always returns the same value. It acts as a provider. We instruct TypeScript to let
-us call that stage without parameter through `restrict: undefined`.
+Our stage takes no parameter, as it always returns the same value. It acts as a provider.
 
-Its transform function simply inject our hooks created with `createTypedHooks`, in the `store` field.
+Its stage hook simply injects our hooks created with `createTypedHooks` in the `store` field.
 
-Now, whenever any component needs to consume our store, we don't need to worry about another import, we can simply add
+Now, whenever any component needs to consume our store, we can simply add
 a stage to our factory.
 
 ```tsx
 const StoreAwareComponent = ModularComponent()
-  .withStore()
-  .withLifecycle(({ store }) => {
+  .with(store())
+  .with(lifecycle(({ store }) => {
     // Reactive value read
     const someValue = store.useStoreState((state) => state.someModel.someValue)
     
@@ -107,7 +91,7 @@ const StoreAwareComponent = ModularComponent()
       const someSyncValue = Store.getState().someOtherModel.someSyncValue
       Store.getActions().someOtherModel.someOtherAction(someSyncValue)
     }, [Store])
-  })
+  }))
 ```
 
 ## Going a step further
@@ -174,33 +158,20 @@ And obviously, it translates easily to a modular stage, as it's a simple hook ca
 
 
 ```tsx 
-import { createStageRecord } from '@modular-component/core'
+import { ModularStage } from '@modular-component/core'
 import { useEasyPeasy } from './use-easy-peasy'
 
-const withStore = Symbol()
-
-declare module '@modular-component/core' {
-  export interface ModularStageTransform<T> {
-    [withStore]: {
-      restrict: undefined
-      transform: ReturnType<typeof useEasyPeasy>
-    }
-  }
+export function store(): ModularStage<'store', typeof useEasyPeasy> {
+  return { field: 'store', useStage: useEasyPeasy }
 }
-
-export const WithStore = createStageRecord({
-  field: 'store',
-  symbol: withStore,
-  transform: useEasyPeasy
-})
 ```
 
 And here is what using it would look like in a component:
 
 ```tsx
 const StoreAwareComponent = ModularComponent()
-  .withStore()
-  .withLifecycle(({ store }) => {
+  .with(store())
+  .with(lifecycle(({ store }) => {
     // Reactive value read
     const someValue = store.use((state) => state.someModel.someValue)
     
@@ -220,12 +191,12 @@ const StoreAwareComponent = ModularComponent()
       const someSyncValue = store.get().someOtherModel.someSyncValue
       store.act().someOtherModel.someOtherAction(someSyncValue)
     }, [store])
-  })
+  }))
 ```
 
 ## Conclusion
 
 Through this simple example, we've seen how `ModularComponent` can help you reduce clutter across your app by embracing
-the injection mechanism, making your factory the only import needed to connect your component to your application's context.
+the injection mechanism, making your factory the center point to connect your component to your application's context.
 
 You can also check our other case study about [configuring your internationalization system as a stage](./using-internationalization.md).

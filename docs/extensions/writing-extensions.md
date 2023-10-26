@@ -5,7 +5,7 @@ sidebar_position: 1
 # The extension system
 
 `ModularComponent` aims to be a toolkit, and as such, it needs to be as agnostic as possible
-of the application context. For this reason, the core factory only implements a single stage: `withRender`,
+of the application context. For this reason, the core factory only implements a single stage: `with(render)`,
 which is in fact a simple, traditional React function component.
 
 Capabilities can then be added on a per-application basis, to construct a pipeline that
@@ -13,203 +13,88 @@ makes sense for a specific application context: adding a stage for connecting to
 store, or for handling internationalization...
 
 Such capabilities are added through **extensions**. Extensions are configuration objects
-detailing a new stage method to add to the pipeline.
+detailing a new stage to add to the pipeline.
 
 ## Understanding stages
 
-Each stage of a pipeline receives exactly one argument, that can be of any form.
+The `.with()` method accepts a standard object comprised of two fields:
 
-The received value is passed to an optional transform function specific to each stage, 
-and the resulting value from this call is added to the arguments map.
+- `field`: the name of the argument that will get added to the argument map
+- `useStage`: a hook that receives the current argument map and returns the value to set on the stage field
 
-When executed, each stage modifies exactly one argument in the shared arguments map.
+While it's possible to use those objects directly when calling `.with()`, for readability and ease of writing we
+recommend creation **custom stage functions** that take relevant parameters and abstract away the stage logic.
 
 ## Extension conventions
 
-Extensions are written as a map of method name to method configuration. They can register one or multiple
-new stage at a time, depending on the needs covered by the extension.
+Extensions export **custom stage functions**, that can be passed to the `.with()` method of a `ModularComponent`.
+They can export one or multiple stage functions, depending on the needs covered by the extension.
 
-By convention, an extension name starts with `With`, capitalized. If it contains a single stage definition,
-then it should be named after the function it creates. If it contains multiple stage definitions, then it
-should be named after the common goal set by the stages.
+By convention, stage function name should start with a lowercase letter, and should not repeat the `with` keyword.
+For instance, a localization extension should be called `locale()`, not `Locale()` or `withLocale()`.
 
-## Setting a name and a target argument
+## Setting a field and stage transform hook
 
-At its simplest, a stage function definition should contain:
+At its simplest, a stage definition should contain:
 
-- A unique symbol used to identify the stage type
-- The base name of the stage to add to the factory (`Lifecycle`, `DefaultProps`...), which will be suffixed to the stage methods (`withLifecycle`, `addLifecycle`...)
-- The name of the argument modified by the stage (`lifecycle`, `props`...)
+- A `field` property containing the name of the argument modified by the stage (`lifecycle`, `props`...)
+- A `useStage` property containing a hook generating the argument value based on previous arguments
 
-Extensions are written as a map of stage name to method configuration. For instance, the `withLifecycle`
-definition looks something like this:
+Extensions are written as functions that return this definition. They should use the `ModularStage` helper type
+to ensure both their `field` and `useStage` properties are correctly typed for inference.
+
+For instance, the `lifecycle` definition looks like this:
 
 ```tsx
-const withLifecycle = Symbol()
+import { ModularStage } from '@modular-component/core'
 
-export const WithLifecycle = {
-  Lifecycle: {
-    symbol: withLifecycle,
-    field: 'lifecycle',
-  },
-} as const
+export function lifecycle<Args extends {}, Return>(
+  useLifecycle: (args: Args) => Return,
+): ModularStage<'lifecycle', (args: Args) => Return> {
+  return { field: 'lifecycle', useStage: useLifecycle }
+}
 ```
 
-You can add as many stage methods as you want. Different stage methods can also impact
+Your stage function can take any argument it needs. In the case of the `lifecycle` function, it takes a function
+that is directly reused as the `useStage` property, but the `useStage` function could be any hook using the parameters
+as it sees fit, along the arguments it receives when called.
+
+You can add as many stage functions as you want. Different stage functions can also impact
 the same field if needed, for some advanced cases.
 
-## Type-safe definition: the `createMethodRecord` helper
+## Parameters and field value inference
 
-To ensure the configuration you produce is valid, you can wrap it in `createMethodRecord` exported
-by `@modular-component/core`:
+If we look at the `lifecycle` example, we can see that the stage function infers two generic parameters: `Args` representing
+the arguments passed from upstream stages, and `Return` representing the value returned from the lifecycle hook.
+
+You can use `Args` to type the first parameter passed to `useStage` (as is the case here) any time you want your return
+type to be aware of the initial `Args` type. This also allows Typescript to automatically type the `args` parameter
+when called:
 
 ```tsx
-import { createMethodRecord } from '@modular-component/core'
-
-const withLifecycle = Symbol()
-
-export const WithLifecycle = createMethodRecord({
-  Lifecycle: {
-    symbol: withLifecycle,
-    field: 'lifecycle',
-  },
-} as const)
+ModularComponent<{ value: number }>()
+  .withLifecycle(({ props }) => ({ double: props.value * 2 }))
+  //                 👆 Here, Typescript knows that the props argument 
+  //                    is of type { value: number }
+  //                    It will also infer that the Return value is 
+  //                    of type { double: number } thanks to that.
 ```
 
-Notice the `as const` statement, making sure TypeScript narrows all
-types as much as possible. It is of paramount importance to always add this statement
-to ensure type inference works correctly. Otherwise, the `field` parameter
-could be inferred as `string`, polluting the complete arguments map, and
-the `symbol` field would be inferred as a generic `symbol`, rather than
-the unique symbol type.
-
-If you provide a misconfigured method, the `createMethodRecord` function
-will reject the argument, letting you know right away.
-
-## Transforming the argument before committing it to the map
-
-At its simplest, a stage will simply append the provided value as-is to the argument
-map, but it might not be sufficient for all cases.
-
-For instance, our `Lifecycle` stage takes a hook as value, but should append _the result of this hook_
-to the arguments map.
-
-For this purpose, a stage can also receive a `transform` configuration parameter, detailing
-how to generate the final value that will be added to the arguments map.
-
-The `transform` function receives two parameters: the current arguments map received from
-previous stages, and the value passed down to the stage by the user. It then returns the
-transformed value to add to the arguments map:
+If we take another example (our `components` extension), you can see that sometimes the current arguments are not needed.
+That is often the case when passing a static value to a stage:
 
 ```tsx
-export const WithLifecycle = createMethodRecord({
-  Lifecycle: {
-    symbol: withLifecycle,
-    field: 'lifecycle',
-    transform: (args, useLifecycle) => {
-      return useLifecycle(args)
-    },
-  },
-} as const)
-```
+import { ComponentType } from 'react'
+import { ModularStage } from '@modular-component/core'
 
-In addition to the stage value, the transform function also receives the arguments map computed
-by upstream stages. In this case, the arguments map is passed as parameter to the lifecycle hook,
-allowing it to react to props and other upstream stages.
-
-Note how we also renamed the parameter to `useLifecycle`: as this can contain hook calls, we
-need to name it accordingly to not break the rule of hooks here.
-
-## Telling TypeScript about a value transformation
-
-Most of the time, the transformation that we apply on a value changes its type
-from the one passed as parameter. Unfortunately, as of TypeScript 4.8, there isn't
-a way still to use "generic generic types". It is therefore not possible, as far as we can tell,
-to retrieve the type of the `transform` configuration and use it to infer the final type
-of the argument.
-
-The workaround implemented for now is an exposed interface, `ModularStages`, that
-takes generic parameters and contains typing information for our stages. An extension package
-can overload this interface to add the correct information for the provided stage.
-
-In order to avoid clashes between multiple extensions providing a similar
-stage function name, the typing map uses _symbols_ as its key to ensure
-uniqueness. The symbol must be passed to the corresponding stage function definition.
-
-In the case of our lifecycle stage, we saw that we created a `withLifecycle` symbol
-and passed it to the stage configuration. We can use it to correctly type the transform,
-which should extract the return type of the provided hook:
-
-```tsx
-// 👇 1. We create our unique symbol
-const withLifecycle = Symbol()
-
-export const WithLifecycle = createMethodRecord({
-  Lifecycle: {
-    symbol: withLifecycle, // 👈 2. We assign our symbol to our configuration
-    field: 'lifecycle',
-    transform: (args, useLifecycle) => {
-      return useLifecycle(args)
-    },
-  },
-} as const)
-
-// 👇 3. We extend the ModularStages interface to add our typings
-declare module '@modular-component/core' {
-  // The current arguments are passed as generic parameter...
-  //                              👇
-  export interface ModularStages<Args, Value> {
-    // ... along with the original value 👆
-
-    [withLifecycle]: {
-      // 👆 4. We use our symbol as index for our entry
-      transform: Value extends (args: Args) => unknown
-        ? ReturnType<Value> // 👈 5. We apply our type transformation,
-                            // constraining the original value as needed
-        : never
-    }
-  }
+export function components<Components extends Record<string, ComponentType>>(
+  components: Components,
+): ModularStage<'components', () => Components> {
+  return { field: 'components', useStage: () => components }
 }
 ```
 
-With this, TypeScript will correctly infer the type of our lifecycle argument as the return
-type of the provided hook!
-
-## Restricting the type of the passed value
-
-Specifically for TypeScript users, stage method type definition allows defining a type
-that the passed value should match to be considered valid. This information will be
-surfaced to the user, marking the stage call as incorrect if the value type do not match
-the expected restriction.
-
-Continuing with our lifecycle hook, we want to restrict the value to a function receiving
-the arguments map as parameter.
-
-This is done through the `restrict` property:
-
-```tsx
-declare module '@modular-component/core' {
-  export interface ModularStages<Args, Value> {
-    [withLifecycle]: {
-      // Restrict the accepted value as a function of current
-      // arguments map  👇
-      restrict: (args: Args) => unknown
-      //                           👆 
-      // We don't want to restrict the form of the
-      // returned value
-      transform: Value extends (args: Args) => unknown
-              ? ReturnType<Value>
-              : never
-    }
-  }
-}
-```
-
-:::note `restrict: undefined`
-Whenever `restrict: undefined` is used on a stage method, the type
-definition will allow users to omit the argument completely. Useful for
-stages that return a constant value or only execute side-effects!
-:::
+In this case, you can easily just omit the generic type parameter, as we don't need to type the `useStage` parameters.
 
 ## Learn more
 
