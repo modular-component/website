@@ -186,7 +186,7 @@ const { toggleOn, toggleOff, enabled } = useIsolatedStage()
 For testing purposes, you might want to extract a stage function to be able to unit-test it in isolation. You can
 use the `stage()` method to achieve just that.
 
-`stage()` takes things step further than `use()`, and should really only be used for testing purposes. It always takes
+`stage()` takes things a step further than `use()`, and should really only be used for testing purposes. It always takes
 a field name to isolate, and returns a hook that takes the arguments map as parameter rather than the component props.
 
 When using `stage()`, you are responsible for providing the relevant arguments expected by your stage function to work.
@@ -197,19 +197,19 @@ Its only use-case is for testing purposes where you want to finely control each 
 Since the actual component function is created inside the factory, React cannot infer its display name from your
 variable name. If you want to set a display name for debugging purposes, you have several ways:
 
-1. Simply set the `displayName` property on your generated component, like any other React component
+1. Simply set the `displayName` property on your generated component, like any other React component:
    ```tsx
    const MyComponent = ModularComponent()
     .with(...)
    
    MyComponent.displayName = 'MyComponent'
    ```
-2. Pass your display name as first and only parameter to the initial `ModularComponent` call
+2. Pass your display name as first and only parameter to the initial `ModularComponent` call:
    ```tsx
    const MyComponent = ModularComponent('MyComponent')
     .with(...)
    ```
-3. Call `setDisplayName` somewhere in your pipeline
+3. Call `setDisplayName` somewhere in your pipeline:
    ```tsx
    const MyComponent = ModularComponent()
     .setDisplayName('MyComponent')

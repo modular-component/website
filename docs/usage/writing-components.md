@@ -86,7 +86,7 @@ The `.with()` method accepts a standard object comprised of two fields:
 
 :::tip
 While it's possible to use those objects directly when calling `.with()`, for readability and ease of writing we
-recommend creation **custom stage functions** that take relevant parameters and abstract away the stage logic.
+recommend creating **custom stage functions** that take relevant parameters and abstract away the stage logic.
 
 All our [official extensions](../extensions/official/official.md) are actually this kind of functions.
 :::
@@ -102,9 +102,9 @@ we can then add a lifecycle stage handling the component's logic. Our component 
 
 ```tsx
 const MyComponent = ModularComponent()
-  .with(globalStore())
-  .with(locale('localization.key.for.my.component'))
-  .with(lifecycle(({ locale, store }) => {
+  .with(Stage.globalStore())
+  .with(Stage.locale('localization.key.for.my.component'))
+  .with(Stage.lifecycle(({ locale, store }) => {
     useDocumentTitle(locale('title'))
     
     const someStoreValue = store.useState((store) => store.some.value)
@@ -127,9 +127,9 @@ Building on top of our previous example, this is what our component could look l
 
 ```tsx
 const MyComponent = ModularComponent()
-  .with(globalStore())
-  .with(locale('localization.key.for.my.component'))
-  .with(lifecycle(({ locale, store }) => {
+  .with(Stage.globalStore())
+  .with(Stage.locale('localization.key.for.my.component'))
+  .with(Stage.lifecycle(({ locale, store }) => {
     useDocumentTitle(locale('title'))
     
     const someStoreValue = store.useState((store) => store.some.value)
@@ -137,7 +137,7 @@ const MyComponent = ModularComponent()
     
     return { someStoreValue, someInternalValue }
   }))
-  .with(render(({ locale, lifecycle }) => (
+  .with(Stage.render(({ locale, lifecycle }) => (
     <>
       <h1>{locale('title')}</h1>
       <p>{locale('content')}</p>

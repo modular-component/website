@@ -44,8 +44,8 @@ that consume the store:
 
 ```tsx
 const useSomeValue = ModularComponent()
-  .with(store())
-  .with(lifecycle(({ store }) => {
+  .with(Stage.store())
+  .with(Stage.lifecycle(({ store }) => {
     return store.useState((store) => store.some.value)
   }))
   .use('lifecycle')

@@ -10,9 +10,9 @@ which is in fact a simple, traditional React function component.
 
 Capabilities can then be added on a per-application basis, to construct a pipeline that
 makes sense for a specific application context: adding a stage for connecting to a global
-store, or for handling internationalization...
+store, or for handling internationalisation...
 
-Such capabilities are added through **extensions**. Extensions are configuration objects
+Such capabilities are added through **extensions**. Extensions are functions returning configuration objects
 detailing a new stage to add to the pipeline.
 
 ## Understanding stages
@@ -23,7 +23,7 @@ The `.with()` method accepts a standard object comprised of two fields:
 - `useStage`: a hook that receives the current argument map and returns the value to set on the stage field
 
 While it's possible to use those objects directly when calling `.with()`, for readability and ease of writing we
-recommend creation **custom stage functions** that take relevant parameters and abstract away the stage logic.
+recommend creating **custom stage functions** that take relevant parameters and abstract away the stage logic.
 
 ## Extension conventions
 
@@ -35,10 +35,7 @@ For instance, a localization extension should be called `locale()`, not `Locale(
 
 ## Setting a field and stage transform hook
 
-At its simplest, a stage definition should contain:
-
-- A `field` property containing the name of the argument modified by the stage (`lifecycle`, `props`...)
-- A `useStage` property containing a hook generating the argument value based on previous arguments
+A stage definition contains a `field` and `useStage` properties as described above.
 
 Extensions are written as functions that return this definition. They should use the `ModularStage` helper type
 to ensure both their `field` and `useStage` properties are correctly typed for inference.

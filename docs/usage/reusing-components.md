@@ -84,21 +84,21 @@ Here is how this could look like using `ModularComponent`:
 export const MyWebComponent = ModularComponent<{
   // Inline props type definition
 }>()
-  .with(lifecycle(({ props }) => {
+  .with(Stage.lifecycle(({ props }) => {
     // Shared logic, can consume the props
   }))
-  .with(render(({ props, lifecycle }) => (
+  .with(Stage.render(({ props, lifecycle }) => (
     // Web-specific interface, can consume the props and the state
   )))
 
 export const MyNativeComponent = MyWebComponent
   // Replace only the render stage
-  .with(render(({ props, lifecycle }) => (
+  .with(Stage.render(({ props, lifecycle }) => (
     // React native-specific interface, can consume the props and the state
   )))
 ```
 
-This is even better! Now we only have two variables to jungle with, and those are the two components we wanted to create
+This is even better! Now we only have two variables to juggle with, and those are the two components we wanted to create
 in the first place.
 
 Our logic and props type are reusable without having to pass a function and type definition around.
@@ -123,23 +123,23 @@ All of this can easily be done using `ModularComponent`, with minimal duplicatio
 ```tsx
 export const SignupConfirmationEmailSent = ModularComponent()
   // Localization data for our signup confirmation screen
-  .with(locale('screens.signup.confirmation-email-sent'))
-  .with(defaultProps({
+  .with(Stage.locale('screens.signup.confirmation-email-sent'))
+  .with(Stage.defaultProps({
     resendEmail: () => {
       // Logic to resend the email for signup confirmation
     }
   }))
-  .with(lifecycle(({ props }) => {
+  .with(Stage.lifecycle(({ props }) => {
     // Shared screen logic: opening the "resend email" confirmation modal, calling props.resendEmail when needed...
   }))
-  .with(render(({ props, lifecycle, locale }) => (
+  .with(Stage.render(({ props, lifecycle, locale }) => (
     // Shared render: consume the passed locale for the copy, has access to props and the lifecycle logic
   )))
 
 export const PasswordResetConfirmationEmailSent = SignupConfirmationEmailSent
   // Replace the locale with the password-reset variant. As long as the keys are the same, the render will keep working
-  .with(locale('screens.password-reset.confirmation-email-sent'))
-  .with(defaultProps({
+  .with(Stage.locale('screens.password-reset.confirmation-email-sent'))
+  .with(Stage.defaultProps({
     resendEmail: () => {
       // Different logic to resend the email for password reset
     }

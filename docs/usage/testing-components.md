@@ -42,10 +42,10 @@ import { useState } from 'react'
 import { ModularComponent } from './modular-component'
 
 const LoginForm = ModularComponent()
-  .with(router())
-  .with(services(['userSession']))
-  .with(locale('components.login-form'))
-  .with(lifecycle(({ services, router }) => {
+  .with(Stage.router())
+  .with(Stage.services(['userSession']))
+  .with(Stage.locale('components.login-form'))
+  .with(Stage.lifecycle(({ services, router }) => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
@@ -82,7 +82,7 @@ const LoginForm = ModularComponent()
       handleSubmit
     }
   }))
-  .with(render(({ lifecycle, locale }) => (
+  .with(Stage.render(({ lifecycle, locale }) => (
     <form onSubmit={lifecycle.handleSubmit}>
       <input 
         placeholder={locale('placeholders.email')} 
@@ -129,7 +129,7 @@ The first part is testing the lifecycle. First, let's take a look at the upstrea
 
 ```tsx 
   // Depends on services 👇...
-  .with(lifecycle(({ services, router }) => ...
+  .with(Stage.lifecycle(({ services, router }) => ...
   // ... and on a routing system 👆
 ```
 
@@ -301,9 +301,7 @@ Once again, let's look at what stages our render phase requires:
   // ... and a locale system  👆
 ```
 
-In order to isolate our render, we can mock the lifecycle and locale stages. Mocking the locale stage is optional,
-and it might make sense for your setup to test specific wording and language variant in your unit tests, but let's say
-we mock it here for the sake of documentation.
+In order to isolate our render, we can mock the lifecycle and locale stages.
 
 ```tsx
 const mocks = {
@@ -485,16 +483,16 @@ import { ModularComponent } from './modular-component'
 import { EmailInput, PasswordInput } from './shared-inputs'
 
 const LoginForm = ModularComponent()
-  .with(router())
-  .with(services(['userSession']))
-  .with(locale('components.login-form'))
+  .with(Stage.router())
+  .with(Stage.services(['userSession']))
+  .with(Stage.locale('components.login-form'))
   // highlight-next-line
-  .with(components({ EmailInput, PasswordInput }))
-  .with(lifecycle(({ services, router }) => {
+  .with(Stage.components({ EmailInput, PasswordInput }))
+  .with(Stage.lifecycle(({ services, router }) => {
     // ... omitted for brevity
   }))
   // highlight-next-line
-  .with(render(({ lifecycle, locale, components }) => (
+  .with(Stage.render(({ lifecycle, locale, components }) => (
     <form onSubmit={lifecycle.handleSubmit}>
       // highlight-next-line
       <components.EmailInput 
