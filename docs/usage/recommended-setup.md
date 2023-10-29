@@ -13,6 +13,8 @@ Somewhere in your setup, create a file to hold your factory. Let's call it `modu
 example.
 
 In this file, import `ModularComponent` and all the stages you want to expose, official or custom-made.
+You can then export everything in a single `Modular` variable, renaming `ModularComponent` to `Component` in the process:
+
 
 ```ts
 import { ModularComponent } from '@modular-component/core'
@@ -20,11 +22,7 @@ import { render, lifecycle, defaultProps } from '@modular-component/default'
 import { components } from '@modular-component/with-components'
 import { locale } from './custom-stages/with-locale'
 import { globalStore } from './custome-stages/with-global-store'
-```
 
-You can then export everything in a single `Modular` variable, renaming `ModularComponent` to `Component` in the process:
-
-```ts
 export const Modular = {
   Component: ModularComponent,
   render,
