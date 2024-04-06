@@ -209,9 +209,9 @@ variable name. If you want to set a display name for debugging purposes, you hav
    const MyComponent = ModularComponent('MyComponent')
     .with(...)
    ```
-3. Call `setDisplayName` somewhere in your pipeline:
+3. Call `withDisplayName` somewhere in your pipeline:
    ```tsx
    const MyComponent = ModularComponent()
-    .setDisplayName('MyComponent')
+    .withDisplayName('MyComponent')
     .with(...)
    ```
