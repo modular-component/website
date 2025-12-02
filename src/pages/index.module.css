@@ -27,8 +27,8 @@
   transition: transform .5s, color .5s;
 }
 
-.heroLogo:hover g {
-  transform: none  !important;
+[data-logo].heroLogo:hover g {
+  transform: none;
   color: white;
 }
 

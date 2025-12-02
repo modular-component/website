@@ -1,12 +1,32 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100" height="100">
-    <g transform="translate(0, 135)" color="#013227">
+<svg data-logo="" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100" height="100">
+    <style>
+        [data-logo] g:nth-child(2) {
+        transform: scale(0);
+        }
+        [data-logo] g:nth-child(3) {
+            transform: translate(0, 27%);
+        }
+        [data-logo] g:nth-child(4) {
+            transform: translate(18.6%, -5.2%);
+        }
+        [data-logo] g:nth-child(5) {
+            transform: translate(-18.6%, -5.2%);
+        }
+    </style>
+
+    <g color="#013227">
+        <circle cx="250" cy="250" r="50" fill="currentColor"/>
+        <text>
+            <!-- empty tag to keep the g in optimization -->
+        </text>
+    </g>
+    <g color="#013227">
         <ellipse cx="250" cy="250" rx="232" ry="90" fill="none" stroke="currentColor" stroke-width="35"/>
         <text>
             <!-- empty tag to keep the g in optimization -->
         </text>
     </g>
-
-    <g transform="translate(93, -26)" color="#03634F">
+    <g color="#03634F">
         <ellipse cx="250" cy="250" rx="232" ry="90" fill="none" stroke="currentColor" stroke-width="35"
                  transform="rotate(60 250 250)"
         />
@@ -14,16 +34,10 @@
             <!-- empty tag to keep the g in optimization -->
         </text>
     </g>
-    <g transform="translate(-93, -26)" color="#049576">
+    <g color="#049576">
         <ellipse cx="250" cy="250" rx="232" ry="90" fill="none" stroke="currentColor" stroke-width="35"
                  transform="rotate(-60 250 250)"
         />
-        <text>
-            <!-- empty tag to keep the g in optimization -->
-        </text>
-    </g>
-    <g transform="scale(0)" color="#013227">
-        <circle cx="250" cy="250" r="50" fill="currentColor"/>
         <text>
             <!-- empty tag to keep the g in optimization -->
         </text>
