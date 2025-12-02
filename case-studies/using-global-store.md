@@ -2,7 +2,7 @@
 slug: using-global-store
 title: Using an application global store
 authors: jvdsande
-date: 2022-10-28
+date: 2025-12-02
 tags: [store, redux]
 ---
 
@@ -16,10 +16,10 @@ It is aimed at being consumed through hooks, and is therefore a good candidate f
 
 The default API allows exposing three hooks:
 
-- `useStore` gives you access at the raw store object, and can be used for non-reactive accesses to the store state 
-  inside effects or callbacks for instance,
+- `useStore` gives you access to the raw store object, and can be used for non-reactive accesses to the store state 
+  inside effects or callbacks for instance.
 - `useStoreState` takes a selector as parameter, and subscribes to the store changes, memoizing the result of the 
-  selector, and triggering a component update when the returned value changes,
+  selector, and triggering a component update when the returned value changes.
 - `useStoreAction` also takes a selector as parameter, but this time allows extracting specific _actions_ rather than _state values_.
   _actions_ in Easy-Peasy are functions mutating your store, using Redux's dispatch internally.
 
@@ -36,7 +36,7 @@ Easy-Peasy offers a solution to this limitation: the `createTypedHooks` function
 as a generic TypeScript parameter, and returns a set of hooks named exactly like the one exported by the package, but 
 aware of your store's typing.
 
-All is left to do is exports those new hooks, and import them whenever you need to interface a component with the store.
+All that's left to do is export those new hooks, and import them whenever you need to interface a component with the store.
 
 However, as your project scales, imports can start to stack up at the start of your files, and depending on your setup, 
 imports to files in your codebase can quickly get messy with relative paths.
@@ -59,7 +59,7 @@ const typedHooks = createTypedHooks<typeof model>()
 export function store<Context extends ModularContext>() {
   return addTo<Context>()
     .on('store')
-    .use(() => typedHooks)
+    .provide(() => typedHooks)
 }
 
 export type WithStore<Context extends ModularContext> = () => StageReturn<typeof store<Context>>
@@ -73,6 +73,9 @@ Now, whenever any component needs to consume our store, we can simply add
 a stage to our factory.
 
 ```tsx
+import { useEffect, useCallback } from 'react'
+import { ModularComponent } from '@modular-component/core'
+
 const StoreAwareComponent = ModularComponent()
   .withStore()
   .withLifecycle(({ store }) => {
@@ -103,26 +106,32 @@ const StoreAwareComponent = ModularComponent()
 While what we achieved so far is already nice, we can improve things a bit to make our store even more straightforward to use.
 
 One thing that I personally observed when using Easy-Peasy, is that I very rarely use the `useStoreAction` hook. The reason
-for this is that your actions are naturally immutable, so `useStoreAction` don't bring any memoization to the table. Furthermore,
+for this is that your actions are naturally immutable, so `useStoreAction` doesn't bring any memoization to the table. Furthermore,
 we have access to the entire store object through `useStore`, which gives us access to those same actions through `getActions()`.
 
 Because of this, I use `useStoreState` a lot to _subscribe to values_, and then simply use `useStore` and pass the `Store`
 object itself around in my effects and callbacks. A nice side-effect from that is that I don't need to change my 
-dependency array if I'm in need of a different actions later on in the same callback or effect.
+dependency array if I'm in need of a different action later on in the same callback or effect.
 
 Taking inspiration from that, we could create an abstraction hook that would grant us access to the store with a slightly
 different API:
 
 ```tsx
+import { createTypedHooks } from 'easy-peasy'
+
+import { model } from './store/model'
+
+const typedHooks = createTypedHooks<typeof model>()
+
 // Helper hook
 function useEasyPeasy() {
-  const raw = useStore()
+  const raw = typedHooks.useStore()
 
   return useMemo(() => ({ 
     raw, 
     act: raw.getActions,
     get: raw.getState, 
-    use: useStoreState
+    use: typeHooks.useStoreState
   }), [raw])
 }
 
@@ -167,7 +176,7 @@ import { useEasyPeasy } from './use-easy-peasy'
 export function store<Context extends ModularContext>() {
   return addTo<Context>()
     .on('store')
-    .use(useEasyPeasy)
+    .provide(useEasyPeasy)
 }
 
 export type WithStore<Context extends ModularContext> = () => StageReturn<typeof store<Context>>

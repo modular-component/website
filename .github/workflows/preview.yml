@@ -1,0 +1,51 @@
+name: Preview
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  deploy-next:
+    name: Next
+    runs-on: ubuntu-latest
+    environment:
+      name: next
+      url: https://next.modularcomponent.dev
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: yarn
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Build website
+        run: yarn build
+      - name: Deploy to surge
+        uses: dswistowski/surge-sh-action@v1
+        with:
+          domain: 'next.modularcomponent.dev'
+          project: 'build'
+          login: ${{ secrets.surge_login }}
+          token: ${{ secrets.surge_token }}
+  deploy-surge:
+    name: Surge
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: yarn
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Build website
+        run: yarn build
+      - name: Deploy to surge
+        uses: dswistowski/surge-sh-action@v1
+        with:
+          domain: 'modularcomponent.surge.sh'
+          project: 'build'
+          login: ${{ secrets.surge_login }}
+          token: ${{ secrets.surge_token }}

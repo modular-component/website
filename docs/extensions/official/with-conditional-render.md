@@ -19,9 +19,9 @@ Provides three stages that allow conditional rendering in `ModularComponents`:
 `conditionalFallback` and `conditionalRender`'s stage functions are executed _conditionally_.
 
 If the provided `condition` isn't met, `conditionalFallback` does not run its function. If a `conditionalFallback` ran earlier,
-`conditonalRender` won't run its function.
+`conditionalRender` won't run its function.
 
-As such, neither of those functions can have hooks calls inside, otherwise the rule of hooks can be broken during
+As such, neither of those functions can have hook calls inside, otherwise the rule of hooks can be broken during
 rerenders.
 :::
 
@@ -45,7 +45,7 @@ const ConditionalComponent = ModularComponent<{ enabled?: boolean }>()
   )
   .with(condition('disabled', ({ props }) => props.enabled !== true))
   .with(conditionalFallback('disabled', () => <>I'm disabled!</>))
-  .with(condition('loading', ({ lifecycle }) => lifecycle.loading === false))
+  .with(condition('loading', ({ lifecycle }) => lifecycle.loading))
   .with(conditionalFallback('loading', () => <>I'm loading!</>))
   .with(
     conditionalRender(({ lifecycle }) => (
@@ -68,7 +68,7 @@ const ConditionalComponent = ModularComponent<{ enabled?: boolean }>()
   })
   .withCondition('disabled', ({ props }) => props.enabled !== true)
   .withConditionalFallback('disabled', () => <>I'm disabled!</>)
-  .withCondition('loading', ({ lifecycle }) => lifecycle.loading === false)
+  .withCondition('loading', ({ lifecycle }) => lifecycle.loading)
   .withConditionalFallback('loading', () => <>I'm loading!</>)
   .withConditionalRender(({ lifecycle }) => (
     <>I'm enabled and loaded, here is the content: {lifecycle.data}</>
@@ -140,7 +140,7 @@ export function condition<
   field: Field,
   useCondition: GetValueGetterFor<Context, Field, boolean>,
 ) {
-  return addTo<Context>().on(field).use(wrap(useCondition))
+  return addTo<Context>().on(field).provide(wrap(useCondition))
 }
 
 export type WithCondition<
@@ -164,7 +164,7 @@ export function conditionalFallback<
 ) {
   return addTo<Context>()
     .on(`render-${condition}`)
-    .use((args) => {
+    .provide((args) => {
       const _args = args as {
         [condition]?: boolean
         render?: ReturnType<FunctionComponent>
@@ -172,7 +172,7 @@ export function conditionalFallback<
       if (_args[condition] && !_args.render) {
         _args.render = wrap(useRender)(args)
       }
-      return !!_args.condition as boolean
+      return !!_args[condition] as boolean
     })
 }
 
@@ -193,7 +193,7 @@ export function conditionalRender<Context extends ModularContext>(
 ) {
   return addTo<Context>()
     .on('render')
-    .use(
+    .provide(
       (args): ReturnType<FunctionComponent> =>
         (args as { render?: ReturnType<FunctionComponent> }).render ??
         wrap(useRender)(args),

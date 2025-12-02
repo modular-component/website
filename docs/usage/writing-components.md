@@ -10,7 +10,7 @@ However, it is perfectly possible to take advantage of `ModularComponent` with s
 
 ## Configuring the component
 
-At it simplest, a component is created by calling the factory:
+At its simplest, a component is created by calling the factory:
 
 ```tsx
 import { ModularComponent } from '@modular-component/core'
@@ -23,7 +23,7 @@ any state, and renders `null` by default.
 
 ### Component display name
 
-One caveat of working with `ModularComponent` is that React cannot infer its display name from the variable it is assigned too,
+One caveat of working with `ModularComponent` is that React cannot infer its display name from the variable it is assigned to,
 because the actual component is created inside the factory. This can make debugging trickier, as stack traces and React Devtools
 will show all components as anonymous components.
 
@@ -56,7 +56,7 @@ that TypeScript knows about them when instantiating it.
 ## Adding stages
 
 Now that our component is created, we can **add stages** to it to extend its capabilities. The result of the factory is a usable React `FunctionComponent`, 
-on which custom factory methods have been added. To add a stage to our component, we can use the `.with()` method. 
+augmented with custom factory methods. To add a stage to our component, we can use the `.with()` method. 
 
 Note that **component factories** are immutable. Because of this, you need to chain the stage calls in the same
 assignment as your component creation. You _cannot call them as side-effects_.
@@ -82,11 +82,11 @@ This will come in very handy in the next chapters about [extending and reusing c
 The `.with()` method accepts a standard argument, a function returning an object comprised of two fields:
 
 - `field`: the name of the argument that will get added to the argument map
-- `use`: a hook that receives the current argument map and returns the value to set on the stage field
+- `provide`: a hook that receives the current argument map and returns the value to set on the stage field
 
 :::tip
 While it's possible to use those objects directly when calling `.with()`, for readability and ease of writing we
-recommend creating **custom stage functions** that take relevant parameters and abstract away the stage logic.
+recommend [creating **custom stage functions**](./writing-custom-stages.md) that take relevant parameters and abstract away the stage logic.
 
 All our [official extensions](../extensions/official/official.md) are actually this kind of functions.
 :::
@@ -101,6 +101,13 @@ Generic stages (handling default props, injecting localization data...) should c
 we can then add a lifecycle stage handling the component's logic. Our component could look something like that:
 
 ```tsx
+import { useState } from 'react'
+import { useDocumentTitle } from './custom-hooks'
+
+import { lifecycle } from '@modular-component/with-lifecycle'
+import { locale } from './custom-stages/with-locale'
+import { globalStore } from './custom-stages/with-global-store'
+
 const MyComponent = ModularComponent()
   .with(globalStore())
   .with(locale('localization.key.for.my.component'))
@@ -108,7 +115,7 @@ const MyComponent = ModularComponent()
     useDocumentTitle(locale('title'))
     
     const someStoreValue = store.useState((store) => store.some.value)
-    const [someInternalValue] = React.useState('value')
+    const [someInternalValue] = useState('value')
     
     return { someStoreValue, someInternalValue }
   }))
@@ -126,6 +133,14 @@ This is enforced internally at the TypeScript level.
 Building on top of our previous example, this is what our component could look like:
 
 ```tsx
+import { useState } from 'react'
+import { useDocumentTitle } from './custom-hooks'
+
+import { render } from '@modular-component/core'
+import { lifecycle } from '@modular-component/with-lifecycle'
+import { locale } from './custom-stages/with-locale'
+import { globalStore } from './custom-stages/with-global-store'
+
 const MyComponent = ModularComponent()
   .with(globalStore())
   .with(locale('localization.key.for.my.component'))
@@ -133,7 +148,7 @@ const MyComponent = ModularComponent()
     useDocumentTitle(locale('title'))
     
     const someStoreValue = store.useState((store) => store.some.value)
-    const [someInternalValue] = React.useState('value')
+    const [someInternalValue] = useState('value')
     
     return { someStoreValue, someInternalValue }
   }))
@@ -152,7 +167,7 @@ const MyComponent = ModularComponent()
 Stage functions can either be passed to the `.with()` function, or registered into the `ModularComponent`
 factory for easier use.
 
-The `ModularComponent` function has a static `register` property that take a record of stage functions and
+The `ModularComponent` function has a static `register` property that takes a record of stage functions and
 creates new `with<Stage>` functions assigned to the returned element of `ModularComponent()`.
 
 ### Manually registering stages
@@ -160,7 +175,7 @@ creates new `with<Stage>` functions assigned to the returned element of `Modular
 #### Registering the runtime implementation
 
 You can register stages by calling the `ModularComponent.register()` function.
-Calling `register()` multiple times do not replace the registered stages, instead it
+Calling `register()` multiple times does not replace the registered stages, instead it
 merges them.
 
 You can use it to register stage functions exported by extensions, or to register
@@ -208,8 +223,8 @@ declare module '@modular-component/stages' {
 
 ### Automatically registering stages
 
-For stages exposes by extensions following our [extensions best practices](../extensions/writing-extensions.md), it's
-possible to automatically registering the custom stage functions by importing a specific `/register` subpath:
+For stages exposed by extensions following our [extensions best practices](../extensions/writing-extensions.md), it's
+possible to automatically register the custom stage functions by importing a specific `/register` subpath:
 
 ```tsx
 import '@modular-component/core/register'

@@ -1,9 +1,10 @@
 ---
 sidebar_position: 2
 ---
+
 # @modular-component/with-default-props
 
-Provides a `defaultProps()` stage allowing to set default value for props. Contrary to the standard React `defaultProps`
+Provides a `defaultProps()` stage allowing to set default values for props. Contrary to the standard React `defaultProps`
 field, the `defaultProps()` stage can also _set new props_ that are not surfaced by the component, and react to passed
 props (or other previous stages) to dynamically compute a default value.
 
@@ -32,19 +33,21 @@ const MyDynamicProps = ModularComponent<{
   role: 'user' | 'owner' | 'admin'
   canEdit?: boolean
   canDelete?: boolean
-}>().with(
-  defaultProps(({ props }) => ({
-    canEdit: ['owner', 'admin'].includes(props.role),
-    canDelete: ['owner'].includes(props.role),
-  })).with(
+}>()
+  .with(
+    defaultProps(({ props }) => ({
+      canEdit: ['owner', 'admin'].includes(props.role),
+      canDelete: ['owner'].includes(props.role),
+    })),
+  )
+  .with(
     render(({ props }) => {
       // props is inferred as { role: 'user' | 'owner' | 'admin'; canEdit: boolean; canDelete: boolean }
       // canEdit defaults to true if the role is not "user", false otherwise
       // canDelete defaults to true if the role is "admin", false otherwise
-      // canEdit and canDelete can still be controlled by explicitely setting the property
+      // canEdit and canDelete can still be controlled by explicitly setting the property
     }),
-  ),
-)
+  )
 ```
 
 **Stage registration**
@@ -67,17 +70,17 @@ const MyDynamicProps = ModularComponent<{
   role: 'user' | 'owner' | 'admin'
   canEdit?: boolean
   canDelete?: boolean
-}>().withDefaultProps(({ props }) =>
-  ({
+}>()
+  .withDefaultProps(({ props }) => ({
     canEdit: ['owner', 'admin'].includes(props.role),
     canDelete: ['owner'].includes(props.role),
-  }.withRender(({ props }) => {
+  }))
+  .withRender(({ props }) => {
     // props is inferred as { role: 'user' | 'owner' | 'admin'; canEdit: boolean; canDelete: boolean }
     // canEdit defaults to true if the role is not "user", false otherwise
     // canDelete defaults to true if the role is "admin", false otherwise
-    // canEdit and canDelete can still be controlled by explicitely setting the property
-  })),
-)
+    // canEdit and canDelete can still be controlled by explicitly setting the property
+  })
 ```
 
 ## Stage registration
@@ -103,6 +106,7 @@ declare module '@modular-component/stages' {
 }
 ```
 
+
 ## Implementation
 
 `defaultProps` runs a custom stage hook to shallowly merge the default props to the received component props.
@@ -120,6 +124,8 @@ import {
   StageReturn,
 } from '@modular-component/core/extend'
 
+// Helper types for building the merged type,
+// marking nullable fields as optional
 type NonNullableFields<Type> = {
   [key in keyof Type]-?: undefined extends Type[key] ? never : key
 }[keyof Type]
@@ -132,6 +138,8 @@ type OptionalNullable<Type> = {
   [key in NullableFields<Type>]?: Type[key]
 }
 
+// Main merge helper merging the props and default props,
+// marking props with a default value as non-optional anymore
 type Merge<Props, DefaultProps extends Partial<Props>> = OptionalNullable<{
   [key in keyof Props | keyof DefaultProps]-?: key extends keyof Props
     ? key extends keyof DefaultProps
@@ -144,6 +152,9 @@ type Merge<Props, DefaultProps extends Partial<Props>> = OptionalNullable<{
   ? { [key in keyof U]: U[key] }
   : never
 
+// Helper type to find fields that lost their optional marker
+// due to a previously defined default prop, in order to
+// constrain the type of further calls to with(defaultProps)
 type OnlyRequiredInConstraint<Original, Constraint> = {
   [key in keyof Constraint & keyof Original]: undefined extends Original[key]
     ? undefined extends Constraint[key]
@@ -152,6 +163,9 @@ type OnlyRequiredInConstraint<Original, Constraint> = {
     : never
 }[keyof Constraint & keyof Original]
 
+// Constrain the field to a partial representation of props,
+// plus any field that previously received a default value in a
+// previous instance of with(defaultProps)
 type Constraint<Context extends ModularContext> = Partial<Context['props']> &
   Pick<
     GetConstraintFor<Context, 'props'>,
@@ -169,7 +183,7 @@ export function defaultProps<
 >(useDefault: GetValueGetterFor<Context, 'props', Default>) {
   return addTo<Context>()
     .on('props')
-    .use((args): Merge<Context['props'], Default> => {
+    .provide((args): Merge<Context['props'], Default> => {
       const defaultProps = wrap(useDefault)(args)
       return {
         ...defaultProps,

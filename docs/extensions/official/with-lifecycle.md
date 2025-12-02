@@ -10,8 +10,10 @@ injected argument.
 
 ## Usage
 
+**Stage function imports**
+
 ```tsx
-import { ModularComponent } from '@modular-component/core'
+import { ModularComponent, render } from '@modular-component/core'
 import { lifecycle } from '@modular-component/with-lifecycle'
 
 const MyComponent = ModularComponent()
@@ -25,6 +27,22 @@ const MyComponent = ModularComponent()
       // Use computed lifecycle in the render phase
     }),
   )
+```
+
+**Stage registration**
+
+```tsx
+import { ModularComponent } from '@modular-component/core'
+import '@modular-component/core/register'
+import '@modular-component/with-lifecycle/register'
+
+const MyComponent = ModularComponent()
+  .withLifecycle(({ props }) => {
+    // Write component state & logic here
+  })
+  .withRender(({ props, lifecycle }) => {
+    // Use computed lifecycle in the render phase
+  })
 ```
 
 ## Stage registration
@@ -75,7 +93,7 @@ export function lifecycle<
   Context extends ModularContext,
   Type extends Constraint<Context>,
 >(useLifecycle: GetValueGetterFor<Context, 'lifecycle', Type>) {
-  return addTo<Context>().on('lifecycle').use(wrap(useLifecycle))
+  return addTo<Context>().on('lifecycle').provide(wrap(useLifecycle))
 }
 
 export type WithLifecycle<

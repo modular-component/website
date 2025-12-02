@@ -41,11 +41,13 @@ const MyComponent = ModularComponent()
 ## Replacing sub-components
 
 Replacing sub-components can be done either by updating or mocking the stage.
-It allows creating a clone of the component with a different sub-components implementation,
+It allows creating a clone of the component with a different set of sub-components,
 either for tests or for content.
 For instance, one could imagine a `Layout` base component taking advantage of this functionality:
 
 ```tsx
+import React from 'react'
+
 const PageLayout = ModularComponent()
   .withComponents({
     Title: React.Fragment,
@@ -89,14 +91,14 @@ ModularComponent.register({ subComponents: components })
 // Extend the type definition
 declare module '@modular-component/stages' {
   export interface ModularComponentStages<Context extends ModularContext> {
-    withSubComponent: WithComponents<Context>
+    withSubComponents: WithComponents<Context>
   }
 }
 ```
 
 ## Implementation
 
-`component()` is a simple stage adding the provided record as a `components` argument. It has a restriction
+`components()` is a simple stage adding the provided record as a `components` argument. It has a restriction
 on accepted values, to only accept a record of React components.
 
 ```tsx
@@ -121,7 +123,7 @@ export function components<
   Context extends ModularContext,
   Type extends Constraint<Context>,
 >(components: GetValueGetterFor<Context, 'components', Type>) {
-  return addTo<Context>().on('components').use(wrap(components))
+  return addTo<Context>().on('components').provide(wrap(components))
 }
 
 export type WithComponents<

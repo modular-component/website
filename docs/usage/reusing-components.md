@@ -10,7 +10,7 @@ but a more specific level than extracting logic into hooks.
 This is permitted by two characteristics of `ModularComponent`:
 
 - The factory is immutable, meaning that each new stage addition creates a brand-new component, leaving the previous
-  one untouched,
+  one untouched.
 - The `with` method called on an existing field _replaces the previous implementation at its current position in the pipeline_, 
   rather than adding a new stage.
 
@@ -21,7 +21,7 @@ the same; or the other way around, keep a component logic, but switch the render
 ## Replacing the render phase
 
 Imagine a component that needs to be used in both a web-based application, and a React Native application. Since React Native
-and the web don't share their primitive components (HTML tags on the web, and built-in components (Text, View...) in React Native),
+and the web don't share their primitive components (HTML tags on the web, and built-in components in React Native such as Text or View),
 only the logic can be reused.
 
 Before the introduction of hooks, the recommended way to deal with that was to create a _headless_ component for handling
@@ -39,7 +39,7 @@ export const MyWebComponent = (props) => (
 )
 
 const MyNativeInterface = (props) => (
-  // Something react-native specific
+  // Something React Native specific
 )
 
 export const MyNativeComponent = (props) => (
@@ -67,7 +67,7 @@ export const MyNativeComponent = (props: MyComponentProps) => {
   const logic = useMyComponentLogic(props)
 
   return (
-    // Something react-native specific
+    // Something React Native specific
   )
 }
 ```
@@ -98,7 +98,7 @@ export const MyNativeComponent = MyWebComponent
   ))
 ```
 
-This is even better! Now we only have two variables to juggle with, and those are the two components we wanted to create
+This is even better! Now we only have two variables to juggle, and those are the two components we wanted to create
 in the first place.
 
 Our logic and props type are reusable without having to pass a function and type definition around.
