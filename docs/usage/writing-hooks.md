@@ -44,10 +44,10 @@ that consume the store:
 
 ```tsx
 const useSomeValue = ModularComponent()
-  .with(Stage.store())
-  .with(Stage.lifecycle(({ store }) => {
+  .withStore()
+  .withLifecycle(({ store }) => {
     return store.useState((store) => store.some.value)
-  }))
+  })
   .use('lifecycle')
 ```
 

@@ -4,72 +4,132 @@ sidebar_position: 4
 
 # @modular-component/with-components
 
-Provides a `with(components)` stage that fills the `components` argument with
+Provides a `components()` stage that fills the `components` argument with
 a map of React components. Useful when running tests in an environment that
 does not allow module mocking: sub-components can be stubbed in tests by
 mocking the stage to replace their implementations.
 
 ## Usage
 
+**Stage function imports**
+
 ```tsx
-import { ModularComponent } from '@modular-component/core'
+import { ModularComponent, render } from '@modular-component/core'
 import { components } from '@modular-component/with-components'
 
 import { SomeComponent } from 'some-component'
 
 const MyComponent = ModularComponent()
   .with(components({ SomeComponent }))
-  .with(render(({ props, components }) => (
-    <components.SomeComponent />
-  )))
+  .with(render(({ props, components }) => <components.SomeComponent />))
+```
+
+**Stage registration**
+
+```tsx
+import { ModularComponent } from '@modular-component/core'
+import '@modular-component/core/register'
+import '@modular-component/with-components/register'
+
+import { SomeComponent } from 'some-component'
+
+const MyComponent = ModularComponent()
+  .withComponents({ SomeComponent })
+  .withRender(({ props, components }) => <components.SomeComponent />)
 ```
 
 ## Replacing sub-components
 
 Replacing sub-components can be done either by updating or mocking the stage.
-It allows creating a clone of the component with a different sub-component implementation,
-either for tests or for content. 
+It allows creating a clone of the component with a different sub-components implementation,
+either for tests or for content.
 For instance, one could imagine a `Layout` base component taking advantage of this functionality:
 
 ```tsx
 const PageLayout = ModularComponent()
-  .with(components({
+  .withComponents({
     Title: React.Fragment,
     Subtitle: React.Fragment,
     Content: React.Fragment,
-    Footer: React.Fragment
-  }))
-  .with(render(({ components }) => (
+    Footer: React.Fragment,
+  })
+  .withRender(({ components }) => {
     // Build a layout using <components.Title />, <components.Subtitle />...
-  )))
+  })
 
-const PageOne = PageLayout.with(components({
+const PageOne = PageLayout.withComponents({
   Title: () => <>First page</>,
   Subtitle: () => <>I have a subtitle but no footer</>,
   Content: () => <>First page content</>,
-  Footer: React.Fragment
-}))
+  Footer: React.Fragment,
+})
 
-const PageTwo = PageLayout.with(components({
+const PageTwo = PageLayout.withComponents({
   Title: () => <>Second page</>,
   Subtitle: React.Fragment,
   Content: () => <>Second page content</>,
-  Footer: () => <>I have a footer but no subtitle</>
-}))
+  Footer: () => <>I have a footer but no subtitle</>,
+})
+```
+
+## Stage registration
+
+You can either automatically register the stage on `withComponents` by importing `@modular-component/with-components/register`,
+or handle the registration manually thanks to the `components` function and `WithComponents` type exports.
+
+For instance, here is how you could register it on `withSubComponents` instead:
+
+```ts
+import { ModularComponent, ModularContext } from '@modular-component/core'
+import { components, WithComponents } from '@modular-component/with-components'
+
+// Register the stage on the factory
+ModularComponent.register({ subComponents: components })
+
+// Extend the type definition
+declare module '@modular-component/stages' {
+  export interface ModularComponentStages<Context extends ModularContext> {
+    withSubComponent: WithComponents<Context>
+  }
+}
 ```
 
 ## Implementation
 
-`with(components)` is a simple stage adding the provided record as a `components` argument. It has a restriction
+`component()` is a simple stage adding the provided record as a `components` argument. It has a restriction
 on accepted values, to only accept a record of React components.
 
 ```tsx
 import { ComponentType } from 'react'
-import { ModularStage } from '@modular-component/core'
+import {
+  addTo,
+  wrap,
+  ModularContext,
+  GetConstraintFor,
+  GetValueGetterFor,
+  StageParams,
+  StageReturn,
+} from '@modular-component/core/extend'
 
-export function components<Components extends Record<string, ComponentType>>(
-  components: Components,
-): ModularStage<'components', () => Components> {
-  return { field: 'components', useStage: () => components }
+type Constraint<Context extends ModularContext> = GetConstraintFor<
+  Context,
+  'components',
+  Record<string, ComponentType<any>>
+>
+
+export function components<
+  Context extends ModularContext,
+  Type extends Constraint<Context>,
+>(components: GetValueGetterFor<Context, 'components', Type>) {
+  return addTo<Context>().on('components').use(wrap(components))
 }
+
+export type WithComponents<
+  Context extends ModularContext
+> = <
+  Type extends Constraint<Context>,
+>(
+  ...args: StageParams<typeof components<Context, Type>>
+) => StageReturn<typeof components<Context, Type>>
+
 ```
