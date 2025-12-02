@@ -34,6 +34,12 @@ const config = {
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl:
             'https://github.com/modular-component/website',
+          remarkPlugins: [[require('remark-twemoji'), {
+            base: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/'
+          }]],
+          admonitions: {
+            keywords: ['note', 'tip', 'info', 'caution', 'danger', 'ref'],
+          },
         },
         blog: {
           showReadingTime: true,
@@ -41,6 +47,9 @@ const config = {
             'https://github.com/modular-component/website',
           path: 'case-studies',
           routeBasePath: 'case-studies',
+          remarkPlugins: [[require('remark-twemoji'), {
+            base: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/'
+          }]]
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),

@@ -49,16 +49,20 @@ It's a good first step, and even though it does not bring tremendous value, clea
 Here is our custom stage function:
 
 ```tsx 
-import { ModularStage } from '@modular-component/core'
+import { ModularContext, StageReturn, addTo } from '@modular-component/core/extend'
 import { createTypedHooks } from 'easy-peasy'
 
 import { model } from './store/model'
 
 const typedHooks = createTypedHooks<typeof model>()
 
-export function store(): ModularStage<'store', () => typeof typedHooks> {
-  return { field: 'store', useStage: () => typedHooks }
+export function store<Context extends ModularContext>() {
+  return addTo<Context>()
+    .on('store')
+    .use(() => typedHooks)
 }
+
+export type WithStore<Context extends ModularContext> = () => StageReturn<typeof store<Context>>
 ```
 
 Our stage takes no parameter, as it always returns the same value. It acts as a provider.
@@ -70,8 +74,8 @@ a stage to our factory.
 
 ```tsx
 const StoreAwareComponent = ModularComponent()
-  .with(store())
-  .with(lifecycle(({ store }) => {
+  .withStore()
+  .withLifecycle(({ store }) => {
     // Reactive value read
     const someValue = store.useStoreState((state) => state.someModel.someValue)
     
@@ -91,7 +95,7 @@ const StoreAwareComponent = ModularComponent()
       const someSyncValue = Store.getState().someOtherModel.someSyncValue
       Store.getActions().someOtherModel.someOtherAction(someSyncValue)
     }, [Store])
-  }))
+  })
 ```
 
 ## Going a step further
@@ -156,22 +160,25 @@ Admittedly this change is small and purely depends on one's tastes. For me, this
 
 And obviously, it translates easily to a modular stage, as it's a simple hook call.
 
-
 ```tsx 
-import { ModularStage } from '@modular-component/core'
+import { ModularContext, StageReturn, addTo } from '@modular-component/core/extend'
 import { useEasyPeasy } from './use-easy-peasy'
 
-export function store(): ModularStage<'store', typeof useEasyPeasy> {
-  return { field: 'store', useStage: useEasyPeasy }
+export function store<Context extends ModularContext>() {
+  return addTo<Context>()
+    .on('store')
+    .use(useEasyPeasy)
 }
+
+export type WithStore<Context extends ModularContext> = () => StageReturn<typeof store<Context>>
 ```
 
 And here is what using it would look like in a component:
 
 ```tsx
 const StoreAwareComponent = ModularComponent()
-  .with(store())
-  .with(lifecycle(({ store }) => {
+  .withStore()
+  .withLifecycle(({ store }) => {
     // Reactive value read
     const someValue = store.use((state) => state.someModel.someValue)
     
@@ -191,7 +198,7 @@ const StoreAwareComponent = ModularComponent()
       const someSyncValue = store.get().someOtherModel.someSyncValue
       store.act().someOtherModel.someOtherAction(someSyncValue)
     }, [store])
-  }))
+  })
 ```
 
 ## Conclusion

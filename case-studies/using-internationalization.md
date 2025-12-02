@@ -38,31 +38,33 @@ a different stage function if you want to keep access to the `i18n` and `ready` 
 For our case, here is how we would create the custom stage:
 
 ```tsx
-import { TFunction } from 'i18next'
 import { useTranslation } from 'i18next-react'
 
-export function locale(): ModularComponent<'locale', TFunction<'translation'>> {
-  return { 
-    field: 'locale',
-    useStage: () => useTranslation('translation').t,
-  }
+import { ModularContext, StageReturn, addTo } from '@modular-component/core/extend'
+
+export function locale<Context extends ModularContext>() {
+  return addTo<Context>()
+    .on('locale')
+    .use(() => useTranslation('translation').t)
 }
+
+export type WithLocale<Context extends ModularContext> = () => StageReturn<typeof locale<Context>>
 ```
 
-This simple stage simply calls the `useTranslation` hook with the default namespace, and returns the `t` function. It then
-stores it in the `locale` field in the arguments map.
+This simple stage simply calls the `useTranslation` hook with the default namespace, and returns the `t` function. 
+It then stores it in the `locale` field in the arguments map.
 
 This allows us to easily used localized strings in our other stages, such as the render stage:
 
 ```tsx
 const AppTitle = ModularComponent()
-  .with(locale())
-  .with(render(({ locale }) => (
+  .withLocale()
+  .withRender(({ locale }) => (
     <>
       <h1>{locale('components.app-title.title')}</h1>
       <h2>{locale('components.app-title.subtitle')}</h2>
     </>
-  )))
+  ))
 ```
 
 ## Embracing component prefixes
@@ -76,32 +78,39 @@ We can set up our stage to optionally take this prefix as parameter, allowing us
 import { TFunction, TFuncKey } from 'i18next'
 import { useTranslation } from 'i18next-react'
 
-export function locale<Key extends TFuncKey<'translation'> = never>(
-  key?: Key,
-): ModularStage<
-  'locale',
-  () => [Key] extends [never] 
-    ? TFunction<'translation'> 
-    : TFunction<'translation', Key>
-> {
-  return {
-    field: 'locale',
-    useStage: () => useTranslation('translation', { keyPrefix: key }).t,
-  }
+import { ModularContext, StageParams, StageReturn, addTo } from '@modular-component/core/extend'
+
+export function locale<
+  Context extends ModularContext,
+  Key extends TFuncKey<'translation'> = never
+>(key?: Key) {
+  return addTo<Context>()
+    .on('locale')
+    .use((): [Key] extends [never]
+      ? TFunction<'translation'>
+      : TFunction<'translation', Key> => useTranslation('translation', { keyPrefix: key }).t)
 }
+
+export type WithLocale<
+  Context extends ModularContext
+> = <
+  Key extends TFuncKey<'translation'> = never
+>(
+  ...args: StageParams<typeof locale<Context, Key>>
+) => StageReturn<typeof locale<Context, Key>>
 ```
 
 With this, we can simplify our component implementation by moving the common prefix to the stage initialization:
 
 ```tsx
 const AppTitle = ModularComponent()
-  .with(locale('components.app-title'))
-  .with(render(({ locale }) => (
+  .withLocale('components.app-title')
+  .withRender(({ locale }) => (
     <>
       <h1>{locale('title')}</h1>
       <h2>{locale('subtitle')}</h2>
     </>
-  )))
+  ))
 ```
 
 It then becomes really easy to implement shared practices around the application, scoping locales to a component's path
@@ -114,7 +123,7 @@ an existing component and change the locale's prefix to alter the rendered text.
 title inherit the implementation of our main application title:
 
 ```tsx
-const SubPageTitle = AppTitle.with(locale('components.sub-page-title'))
+const SubPageTitle = AppTitle.withLocale('components.sub-page-title')
 ```
 
 However, using the current setup for our stage, TypeScript will actually let us replace the prefix by any other valid
@@ -129,24 +138,34 @@ cover our needs. But we can go around it by modifying slightly the type of the r
 import { TFunction, TFuncKey } from 'i18next'
 import { useTranslation } from 'i18next-react'
 
-export function locale<Key extends TFuncKey<'translation'> = never>(
-  key?: Key,
-): ModularStage<
-  'locale',
-  () => [Key] extends [never] ? TFunction<'translation'> :
-    // highlight-next-line
-    | TFunction<'translation', Key>
-    // highlight-next-line
-    | ((key: TFuncKey<'translation', Key>) => string)
-> {
-  return {
-    field: 'locale',
-    useStage: () => useTranslation('translation', { keyPrefix: key }).t,
-  }
+import { ModularContext, StageParams, StageReturn, addTo } from '@modular-component/core/extend'
+
+export function locale<
+  Context extends ModularContext,
+  Key extends TFuncKey<'translation'> = never
+>(key?: Key) {
+  return addTo<Context>()
+    .on('locale')
+    .use((): [Key] extends [never]
+      ? TFunction<'translation'> :
+      // highlight-next-line
+      | TFunction<'translation', Key>
+      // highlight-next-line
+      | ((key: TFuncKey<'translation', Key>) => string) =>
+      useTranslation('translation', { keyPrefix: key }).t)
 }
+
+export type WithLocale<
+  Context extends ModularContext
+> = <
+  Key extends TFuncKey<'translation'> = never
+>(
+  ...args: StageParams<typeof locale<Context, Key>>
+) => StageReturn<typeof locale<Context, Key>>
 ```
 
-By adding this stricter restriction through a union type, we keep the original behavior, but only prefixes yielding compatible sub-selectors will be accepted when replacing a stage.
+By adding this stricter restriction through a union type, we keep the original behavior, 
+but only prefixes yielding compatible sub-selectors will be accepted when replacing a stage.
 
 ## Conclusion
 
@@ -154,4 +173,4 @@ With this localization stage, we get a very easy way to integrate localized stri
 type-safety offered by `i18next`. By lifting the prefix definition at the factory level, we also make it easy to put 
 best practices in place for organizing our locales linked to our components.
 
-You can also check our other case study about [configuring golabl store access as a stage](./using-global-store.md).
+You can also check our other case study about [configuring golbal store access as a stage](./using-global-store.md).

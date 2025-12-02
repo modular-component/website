@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 5
 ---
 
 # Testing Components
@@ -39,13 +39,13 @@ In this document, we'll look at a simple login form component, looking like this
 
 ```tsx
 import { useState } from 'react'
-import { ModularComponent } from './modular-component'
+import { ModularComponent } from '@modular-component/core'
 
 const LoginForm = ModularComponent()
-  .with(Stage.router())
-  .with(Stage.services(['userSession']))
-  .with(Stage.locale('components.login-form'))
-  .with(Stage.lifecycle(({ services, router }) => {
+  .withRouter()
+  .withServices(['userSession'])
+  .withLocale('components.login-form')
+  .withLifecycle(({ services, router }) => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
@@ -81,8 +81,8 @@ const LoginForm = ModularComponent()
       handlePasswordChange: handleChange('password'),
       handleSubmit
     }
-  }))
-  .with(Stage.render(({ lifecycle, locale }) => (
+  })
+  .withRender(({ lifecycle, locale }) => (
     <form onSubmit={lifecycle.handleSubmit}>
       <input 
         placeholder={locale('placeholders.email')} 
@@ -99,11 +99,11 @@ const LoginForm = ModularComponent()
       { !!lifecycle.error && <span>{locale(lifecycle.error) || locale('unknown-error')}</span> }
       <button type="submit">{locale('submit')}</button>
     </form>
-  )))
+  ))
 ```
 
-The `with(router)` and `with(services)` are imaginary custom stages that inject the routing mechanism and our backend
-services into the argument map. `with(locale)` is a localization stage that turns localization codes into localized strings.
+The `withRouter()` and `withServices()` are imaginary custom stages that inject the routing mechanism and our backend
+services into the argument map. `withLocale()` is a localization stage that turns localization codes into localized strings.
 
 In our tests, we want to make sure of a few things:
 
@@ -129,7 +129,7 @@ The first part is testing the lifecycle. First, let's take a look at the upstrea
 
 ```tsx 
   // Depends on services 👇...
-  .with(Stage.lifecycle(({ services, router }) => ...
+  .withLifecycle(({ services, router }) => ...
   // ... and on a routing system 👆
 ```
 
@@ -477,22 +477,22 @@ mocking. For that, let's update our component:
 
 ```tsx
 import { useState } from 'react'
-import { ModularComponent } from './modular-component'
+import { ModularComponent } from '@modular-component/core'
 
 // highlight-next-line
 import { EmailInput, PasswordInput } from './shared-inputs'
 
 const LoginForm = ModularComponent()
-  .with(Stage.router())
-  .with(Stage.services(['userSession']))
-  .with(Stage.locale('components.login-form'))
+  .withRouter()
+  .withServices(['userSession'])
+  .withLocale('components.login-form')
   // highlight-next-line
-  .with(Stage.components({ EmailInput, PasswordInput }))
-  .with(Stage.lifecycle(({ services, router }) => {
+  .withComponents({ EmailInput, PasswordInput })
+  .withLifecycle(({ services, router }) => {
     // ... omitted for brevity
-  }))
+  })
   // highlight-next-line
-  .with(Stage.render(({ lifecycle, locale, components }) => (
+  .withRender(({ lifecycle, locale, components }) => (
     <form onSubmit={lifecycle.handleSubmit}>
       // highlight-next-line
       <components.EmailInput 
@@ -509,10 +509,10 @@ const LoginForm = ModularComponent()
       { !!lifecycle.error && <span>{locale(lifecycle.error) || locale('unknown-error')}</span> }
       <button type="submit">{locale('submit')}</button>
     </form>
-  )))
+  ))
 ```
 
-Notice how in the render, we use the components injected by the `with(components)` stage. Thanks to that, it becomes
+Notice how in the render, we use the components injected by the `withComponents()` stage. Thanks to that, it becomes
 easy to replace them by dummy implementations in our tests.
 
 For instance, we could reduce them to standard inputs:

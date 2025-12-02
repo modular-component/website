@@ -13,7 +13,7 @@ However, it is perfectly possible to take advantage of `ModularComponent` with s
 At it simplest, a component is created by calling the factory:
 
 ```tsx
-import { ModularComponent } from './modular-component'
+import { ModularComponent } from '@modular-component/core'
 
 export const MyComponent = ModularComponent()
 ```
@@ -30,7 +30,7 @@ will show all components as anonymous components.
 You can get around this limitation by manually providing an (optional) display name at component creation:
 
 ```tsx
-import { ModularComponent } from './modular-component'
+import { ModularComponent } from '@modular-component/core'
 
 export const MyComponent = ModularComponent('MyComponent')
 ```
@@ -42,7 +42,7 @@ It is a good practice to keep the debug name and the variable name in sync.
 When using TypeScript, you can pass a generic type parameter to the `ModularComponent` call to set the component's props:
 
 ```tsx
-import { ModularComponent } from './modular-component'
+import { ModularComponent } from '@modular-component/core'
 
 export const MyComponent = ModularComponent<{
   isActive: boolean
@@ -74,15 +74,15 @@ const MyComponent = ModularComponent()
   .with(stage())
 ```
 
-This will come in very handy in the next chapter about [extending and reusing components](./reusing-components.md), as well as for
+This will come in very handy in the next chapters about [extending and reusing components](./reusing-components.md), as well as for
 [testing components](./testing-components.md)
 
 ### Custom stages
 
-The `.with()` method accepts a standard object comprised of two fields:
+The `.with()` method accepts a standard argument, a function returning an object comprised of two fields:
 
 - `field`: the name of the argument that will get added to the argument map
-- `useStage`: a hook that receives the current argument map and returns the value to set on the stage field
+- `use`: a hook that receives the current argument map and returns the value to set on the stage field
 
 :::tip
 While it's possible to use those objects directly when calling `.with()`, for readability and ease of writing we
@@ -102,9 +102,9 @@ we can then add a lifecycle stage handling the component's logic. Our component 
 
 ```tsx
 const MyComponent = ModularComponent()
-  .with(Stage.globalStore())
-  .with(Stage.locale('localization.key.for.my.component'))
-  .with(Stage.lifecycle(({ locale, store }) => {
+  .with(globalStore())
+  .with(locale('localization.key.for.my.component'))
+  .with(lifecycle(({ locale, store }) => {
     useDocumentTitle(locale('title'))
     
     const someStoreValue = store.useState((store) => store.some.value)
@@ -127,9 +127,9 @@ Building on top of our previous example, this is what our component could look l
 
 ```tsx
 const MyComponent = ModularComponent()
-  .with(Stage.globalStore())
-  .with(Stage.locale('localization.key.for.my.component'))
-  .with(Stage.lifecycle(({ locale, store }) => {
+  .with(globalStore())
+  .with(locale('localization.key.for.my.component'))
+  .with(lifecycle(({ locale, store }) => {
     useDocumentTitle(locale('title'))
     
     const someStoreValue = store.useState((store) => store.some.value)
@@ -137,7 +137,7 @@ const MyComponent = ModularComponent()
     
     return { someStoreValue, someInternalValue }
   }))
-  .with(Stage.render(({ locale, lifecycle }) => (
+  .with(render(({ locale, lifecycle }) => (
     <>
       <h1>{locale('title')}</h1>
       <p>{locale('content')}</p>
@@ -146,3 +146,74 @@ const MyComponent = ModularComponent()
     </>
   )))
 ```
+
+## Registering stage functions
+
+Stage functions can either be passed to the `.with()` function, or registered into the `ModularComponent`
+factory for easier use.
+
+The `ModularComponent` function has a static `register` property that take a record of stage functions and
+creates new `with<Stage>` functions assigned to the returned element of `ModularComponent()`.
+
+### Manually registering stages
+
+#### Registering the runtime implementation
+
+You can register stages by calling the `ModularComponent.register()` function.
+Calling `register()` multiple times do not replace the registered stages, instead it
+merges them.
+
+You can use it to register stage functions exported by extensions, or to register
+your own custom stage functions:
+
+```tsx
+import { ModularComponent, render } from '@modular-component/core'
+import { lifecycle } from '@modular-component/with-lifecycle'
+import { locale } from './custom-stages/with-locale'
+import { globalStore } from './custom-stages/with-global-store'
+
+ModularComponent.register({
+  render,
+  lifecycle,
+  locale,
+  globalStore
+})
+```
+
+#### Registering the typing information
+
+If you use TypeScript, you can tell the TypeScript compiler about the custom stages
+by extending the `ModularComponentStages` interface exported by `@modular-component/stages`.
+
+Extensions following our [extensions best practices](../extensions/writing-extensions.md) will expose a `With<Stage>` generic type that you can use for that purpose.
+See [Writing Custom Stages](./writing-custom-stages.md) to learn how to write this type for
+your custom stages.
+
+```tsx
+import type { ModularContext, WithRender } from '@modular-component/core'
+import type { WithLifecycle } from '@modular-component/with-lifecycle'
+import type { WithLocale } from './custom-stages/with-locale'
+import type { WithGlobalStore } from './custom-stages/with-global-store'
+
+// Extend @modular-component/stages by re-declaring it
+declare module '@modular-component/stages' {
+  export interface ModularComponentStages<Context extends ModularContext> {
+    withRender: WithRender<Context>
+    withLifecycle: WithLifecycle<Context>
+    withLocale: WithLocale<Context>
+    withGlobalStore: WithGlobalStore<Context>
+  }
+}
+```
+
+### Automatically registering stages
+
+For stages exposes by extensions following our [extensions best practices](../extensions/writing-extensions.md), it's
+possible to automatically registering the custom stage functions by importing a specific `/register` subpath:
+
+```tsx
+import '@modular-component/core/register'
+import '@modular-component/with-lifecycle/register'
+```
+
+Those imports will take care of both the runtime and TypeScript configuration.

@@ -28,7 +28,7 @@
 }
 
 .heroLogo:hover g {
-  transform: none;
+  transform: none  !important;
   color: white;
 }
 

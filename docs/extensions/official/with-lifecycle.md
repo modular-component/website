@@ -15,25 +15,74 @@ import { ModularComponent } from '@modular-component/core'
 import { lifecycle } from '@modular-component/with-lifecycle'
 
 const MyComponent = ModularComponent()
-  .with(lifecycle(({ props }) => {
-    // Write component state & logic here
-  }))
-  .with(render(({ props, lifecycle }) => (
-    // Use computed lifecycle in the render phase
-  )))
+  .with(
+    lifecycle(({ props }) => {
+      // Write component state & logic here
+    }),
+  )
+  .with(
+    render(({ props, lifecycle }) => {
+      // Use computed lifecycle in the render phase
+    }),
+  )
+```
+
+## Stage registration
+
+You can either automatically register the stage on `withLifecycle` by importing `@modular-component/with-lifecycle/register`,
+or handle the registration manually thanks to the `lifecycle` function and `WithLifecycle` type exports.
+
+For instance, here is how you could register it on `withLogic` instead:
+
+```ts
+import { ModularComponent, ModularContext } from '@modular-component/core'
+import { lifecycle, WithLifecycle } from '@modular-component/with-lifecycle'
+
+// Register the stage on the factory
+ModularComponent.register({ logic: lifecycle })
+
+// Extend the type definition
+declare module '@modular-component/stages' {
+  export interface ModularComponentStages<Context extends ModularContext> {
+    withLogic: WithLifecycle<Context>
+  }
+}
 ```
 
 ## Implementation
 
-`with(lifecycle)` receives a function taking the current arguments map as parameter. It uses this function as the
+`lifecycle()` receives a function taking the current arguments map as parameter. It uses this function as the
 stage hook directly:
 
 ```ts
-import { ModularStage } from '@modular-component/core'
+import {
+  addTo,
+  wrap,
+  ModularContext,
+  GetConstraintFor,
+  GetValueGetterFor,
+  StageParams,
+  StageReturn,
+} from '@modular-component/core/extend'
 
-export function lifecycle<Args extends {}, Return>(
-  useLifecycle: (args: Args) => Return,
-): ModularStage<'lifecycle', (args: Args) => Return> {
-  return { field: 'lifecycle', useStage: useLifecycle }
+type Constraint<Context extends ModularContext> = GetConstraintFor<
+  Context,
+  'lifecycle',
+  {}
+>
+
+export function lifecycle<
+  Context extends ModularContext,
+  Type extends Constraint<Context>,
+>(useLifecycle: GetValueGetterFor<Context, 'lifecycle', Type>) {
+  return addTo<Context>().on('lifecycle').use(wrap(useLifecycle))
 }
+
+export type WithLifecycle<
+  Context extends ModularContext
+> = <
+  Type extends Constraint<Context>,
+>(
+  ...args: StageParams<typeof lifecycle<Context, Type>>
+) => StageReturn<typeof lifecycle<Context, Type>>
 ```

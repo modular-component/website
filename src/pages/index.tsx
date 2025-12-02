@@ -1,5 +1,6 @@
-import React from 'react';
+import React, {useLayoutEffect} from 'react';
 import clsx from 'clsx';
+import twemoji from 'twemoji';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
@@ -10,10 +11,17 @@ import styles from './index.module.css';
 
 function HomepageHeader() {
   const {siteConfig} = useDocusaurusContext();
+
+  useLayoutEffect(() => {
+    twemoji.parse(document.querySelector('header') as HTMLElement,
+      { base: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/' }
+    )
+  }, []);
+
   return (
     <header className={clsx('hero hero--primary', styles.heroBanner)}>
       <div className="container">
-        <Logo className={styles.heroLogo} />
+        <Logo className={styles.heroLogo}/>
         <h1 className={clsx("hero__title", styles.heroTitle)}>{siteConfig.title}</h1>
         <p className={clsx("hero__subtitle", styles.heroTitle)}>{siteConfig.tagline}</p>
         <div className={styles.buttons}>
@@ -40,9 +48,9 @@ export default function Home(): JSX.Element {
     <Layout
       title={siteConfig.title}
       description="Delightfully organized and deeply testable React Components">
-      <HomepageHeader />
+      <HomepageHeader/>
       <main>
-        <HomepageFeatures />
+        <HomepageFeatures/>
       </main>
     </Layout>
   );
