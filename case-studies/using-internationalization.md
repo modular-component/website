@@ -2,23 +2,23 @@
 slug: using-internationalization
 title: Using an i18n provider
 authors: jvdsande
-date: 2022-10-22
+date: 2025-12-02
 tags: [i18n]
 ---
 
-In this case study, we look at injecting a component localization data using [`i18next`](https://www.i18next.com/)
+In this case study, we look at injecting component localization data using [`i18next`](https://www.i18next.com/)
 and TypeScript to build a custom modular stage.
 
 <!--truncate-->
 
-`i18next` is a well known library for handling your application's internationalization needs. At it simplest, you feed
+`i18next` is a well-known library for handling your application's internationalization needs. At its simplest, you feed
 it with a map of key/value pairs for each language you want to support, and it provides you with a `t(key: string)` function
 retrieving the correct value based on the currently configured language and the passed key.
 
 When using TypeScript, you can further configure it with the list of valid keys, to get both type safety and autocompletion.
 
 Using prefixes, you can scope your keys, and `i18next` provides a `t` function generator taking a prefix as parameter
-and allowing accessing prefixed keys by the rest of their identifier only: for instance, `my.component.title` and `my.component.subtitle`
+and allowing access to prefixed keys by the rest of their identifier only: for instance, `my.component.title` and `my.component.subtitle`
 can be accessed through `t('title')` and `t('subtitle')` when `t` is generated with the `my.component` prefix.
 
 ## `i18next`'s `useTranslation` hook 
@@ -31,21 +31,21 @@ used when dynamically loading translations.
 
 ## Injecting the `t` function and other values
 
-Rather than importing `useTranslation` from `i18next-react` everywhere localization is needed, we can take advantage of
+Rather than importing `useTranslation` from `react-i18next` everywhere localization is needed, we can take advantage of
 `ModularComponent` injection system. In this case study, we will focus on the returned `t` function, but you could create
 a different stage function if you want to keep access to the `i18n` and `ready` values.
 
 For our case, here is how we would create the custom stage:
 
 ```tsx
-import { useTranslation } from 'i18next-react'
+import { useTranslation } from 'react-i18next'
 
 import { ModularContext, StageReturn, addTo } from '@modular-component/core/extend'
 
 export function locale<Context extends ModularContext>() {
   return addTo<Context>()
     .on('locale')
-    .use(() => useTranslation('translation').t)
+    .provide(() => useTranslation('translation').t)
 }
 
 export type WithLocale<Context extends ModularContext> = () => StageReturn<typeof locale<Context>>
@@ -54,7 +54,7 @@ export type WithLocale<Context extends ModularContext> = () => StageReturn<typeo
 This simple stage simply calls the `useTranslation` hook with the default namespace, and returns the `t` function. 
 It then stores it in the `locale` field in the arguments map.
 
-This allows us to easily used localized strings in our other stages, such as the render stage:
+This allows us to easily use localized strings in our other stages, such as the render stage:
 
 ```tsx
 const AppTitle = ModularComponent()
@@ -76,7 +76,7 @@ We can set up our stage to optionally take this prefix as parameter, allowing us
 
 ```tsx
 import { TFunction, TFuncKey } from 'i18next'
-import { useTranslation } from 'i18next-react'
+import { useTranslation } from 'react-i18next'
 
 import { ModularContext, StageParams, StageReturn, addTo } from '@modular-component/core/extend'
 
@@ -86,7 +86,7 @@ export function locale<
 >(key?: Key) {
   return addTo<Context>()
     .on('locale')
-    .use((): [Key] extends [never]
+    .provide((): [Key] extends [never]
       ? TFunction<'translation'>
       : TFunction<'translation', Key> => useTranslation('translation', { keyPrefix: key }).t)
 }
@@ -136,7 +136,7 @@ cover our needs. But we can go around it by modifying slightly the type of the r
 
 ```tsx
 import { TFunction, TFuncKey } from 'i18next'
-import { useTranslation } from 'i18next-react'
+import { useTranslation } from 'react-i18next'
 
 import { ModularContext, StageParams, StageReturn, addTo } from '@modular-component/core/extend'
 
@@ -146,7 +146,7 @@ export function locale<
 >(key?: Key) {
   return addTo<Context>()
     .on('locale')
-    .use((): [Key] extends [never]
+    .provide((): [Key] extends [never]
       ? TFunction<'translation'> :
       // highlight-next-line
       | TFunction<'translation', Key>
@@ -173,4 +173,4 @@ With this localization stage, we get a very easy way to integrate localized stri
 type-safety offered by `i18next`. By lifting the prefix definition at the factory level, we also make it easy to put 
 best practices in place for organizing our locales linked to our components.
 
-You can also check our other case study about [configuring golbal store access as a stage](./using-global-store.md).
+You can also check our other case study about [configuring global store access as a stage](./using-global-store.md).

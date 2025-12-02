@@ -4,10 +4,10 @@ sidebar_position: 6
 
 # @modular-component/with-fragment
 
-ModularComponent stage allowing to cut the render phase into multiple fragments that can be composed together in the
+A ModularComponent stage allowing to cut the render phase into multiple fragments that can be composed together in the
 render stage. It can make conditional rendering easier to read and reduce duplication.
 
-It can either return a map of React node accessible through the `fragments` field, or be called multiple times by
+It can either return a map of React nodes accessible through the `fragments` field, or be called multiple times by
 specifying a field key to use and returning a single React node.
 
 ## Usage
@@ -119,7 +119,7 @@ ModularComponent.register({ fragment, fragments })
 declare module '@modular-component/stages' {
   export interface ModularComponentStages<Context extends ModularContext> {
     withFragment: WithFragment<Context>
-    withFragments: WithFragment<Context>
+    withFragments: WithFragments<Context>
   }
 }
 ```
@@ -148,7 +148,7 @@ export function fragment<Context extends ModularContext, Field extends string>(
   field: Field,
   fragment: GetValueGetterFor<Context, Field, ReturnType<FunctionComponent>>,
 ) {
-  return addTo<Context>().on(field).use(wrap(fragment))
+  return addTo<Context>().on(field).provide(wrap(fragment))
 }
 
 export type WithFragment<Context extends ModularContext> = <
@@ -167,7 +167,7 @@ export function fragments<
   Context extends ModularContext,
   Type extends Constraint<Context>,
 >(fragments: GetValueGetterFor<Context, 'fragments', Type>) {
-  return addTo<Context>().on('fragments').use(wrap(fragments))
+  return addTo<Context>().on('fragments').provide(wrap(fragments))
 }
 
 export type WithFragments<Context extends ModularContext> = <

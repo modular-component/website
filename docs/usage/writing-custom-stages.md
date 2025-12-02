@@ -3,6 +3,12 @@ sidebar_position: 3
 title: Writing Custom Stages
 ---
 
+This guide describes how to write custom stage function providers, such
+as those provided by our [official extensions](../extensions/official/official.md).
+
+Use your own custom stages to personalize your `ModularComponent` experience and tailor
+it to your application (inject services, access a global store, use your internationalization solution...).
+
 ## Stage function shape
 
 A stage function is a function that can be passed to the `.with()` method
@@ -13,14 +19,14 @@ It needs the following signature:
 ```tsx
 (ctx?: Context): {
   field: Field,
-  use: (args: GetArgsFor<Context, Field>) => Type
+  provide: (args: GetArgsFor<Context, Field>) => Type
 }
 ```
 
 The optional `ctx` parameter is there so that TypeScript
 can infer its value from the `ModularComponent` to which
 the function is passed. This is the key to being able to 
-infer the arguments received by the `use` function, and 
+infer the arguments received by the `provide` function, and 
 therefore its own return type.
 
 It is marked optional because _the factory will never actually set that
@@ -28,16 +34,16 @@ parameter_, it's only there to pass down the arguments type information.
 
 The returned object describes how the stage will modify the arguments map:
 `field` is the property that will be added or modified on the arguments map,
-while `use` is a function that takes the current arguments map up to that stage,
+while `provide` is a function that takes the current arguments map up to that stage,
 and returns the value to store in `field`.
 
 ## The `addTo` helper
 
-The `@modular-component/core/extend` subpath exports a `addTo` function aimed
+The `@modular-component/core/extend` subpath exports an `addTo` function aimed
 at helping build stage functions.
 
 It works as a chain of three functions: `addTo` returns an `on` function to specify the field (and infer its type from the provided value),
-which in turns returns a `use` function to set the arguments transformer, pre-configured to receive the correct arguments
+which in turn returns a `provide` function to set the arguments transformer, pre-configured to receive the correct arguments
 for the field, and infers its return type.
 
 The `addTo` function takes the current context as a generic TypeScript type parameter.
@@ -45,7 +51,7 @@ The `addTo` function takes the current context as a generic TypeScript type para
 ```ts
 const stage = addTo<Context>()
     .on('field')
-    .use((args) => /* compute field value from args */)
+    .provide((args) => /* compute field value from args */)
 ```
 
 ## Creating a stage function provider
@@ -59,7 +65,7 @@ import { ModularContext, addTo } from '@modular-component/core/extend'
 function stage<Context extends ModularContext>(...params: any[]) {
   return addTo<Context>()
     .on('field')
-    .use((args) => /* compute field value from args and params */)
+    .provide((args) => /* compute field value from args and params */)
 }
 ```
 
@@ -80,7 +86,7 @@ function locale<
 >(keyPrefix: KeyPrefix) {
   return addTo<Context>()
     .on('locale')
-    .use((args): GetterFromPrefix<KeyPrefix> => useTranslation(keyPrefix)) 
+    .provide((args): GetterFromPrefix<KeyPrefix> => useTranslation(keyPrefix)) 
 }
 ```
 
@@ -99,7 +105,7 @@ function stage<
 >(field: Field, value: Value) {
   return addTo<Context>()
     .on(field)
-    .use(() => value) 
+    .provide(() => value) 
 }
 ```
 
@@ -109,7 +115,7 @@ It can be useful to let the consumer access the arguments provided by upstream s
 This is the case for the [render stage](./writing-components.md#render-stage) or the [lifecycle extension](../extensions/official/with-lifecycle.md)
 for instance.
 
-The arguments are provided by the `use` function, but can be inferred from the `Context` directly in a parameter thanks to 
+The arguments are provided by the `provide` function, but can be inferred from the `Context` directly in a parameter thanks to 
 helper types exported by `@modular-component/core/extend`: `GetArgsFor` and `GetValueGetterFor`.
 
 #### `GetArgsFor`
@@ -119,7 +125,7 @@ It returns the arguments available for that `Field`, keeping track of it interna
 field is overridden later by calling the same stage function again (see [Reusing components](./reusing-components.md)).
 
 You can use it to create a parameter taking a function computing a value from those args, and then call that function in 
-the `use` transformer of your stage:
+the `provide` transformer of your stage:
 
 ```ts
 import { ModularContext, GetArgsFor, addTo } from '@modular-component/core/extend'
@@ -131,13 +137,13 @@ function stage<
 >(field: Field, useComputeValue: (args: GetArgsFor<Context, Field>) => Value) {
   return addTo<Context>()
     .on(field)
-    .use((args) => useComputeValue(args)) 
+    .provide((args) => useComputeValue(args)) 
 }
 ```
 
 #### `GetValueGetterFor` and `wrap` (recommended)
 
-Rather than forcing your users to provide a function each time, you can opt in for letting them choose between a function
+Rather than forcing your users to provide a function each time, you can opt for letting them choose between a function
 or a direct value through the `GetValueGetterFor`. This type takes the `Context` and `Field` and a third `Type` parameter (which can be generic too!)
 and creates a type accepting either a raw value of type `Type`, or a function of type `(args: GetArgsFor<Context, Field>) => Type`.
 
@@ -154,7 +160,7 @@ function stage<
 >(field: Field, useComputeValue: GetValueGetterFor<Context, Field, Value>) {
   return addTo<Context>()
     .on(field)
-    .use((args) => wrap(useComputeValue)(args)) 
+    .provide((args) => wrap(useComputeValue)(args)) 
 }
 ```
 
@@ -175,7 +181,7 @@ export function lifecycle<
   Context extends ModularContext,
   Type extends GetConstraintFor<Context, 'lifecycle', {}>,
 >(useLifecycle: GetValueGetterFor<Context, 'lifecycle', Type>) {
-  return addTo<Context>().on('lifecycle').use(wrap(useLifecycle))
+  return addTo<Context>().on('lifecycle').provide(wrap(useLifecycle))
 }
 ```
 
@@ -197,7 +203,7 @@ export function locale<
 >(keyPrefix: KeyPrefix) {
   return addTo<Context>()
     .on('locale')
-    .use(
+    .provide(
       (): GetterFromPrefix<KeyPrefix> =>
         useTranslation(keyPrefix),
     )
@@ -216,7 +222,7 @@ type from your function. You will still need to manually create a type where you
 
 
 ```tsx
-import { ModularContext, GetValueGetterFor, StageParams, StageReturn, addTo, wrap } from '@modular-component/core/extend'
+import { ModularContext, GetValueGetterFor, GetConstraintFor, StageParams, StageReturn, addTo, wrap } from '@modular-component/core/extend'
 import { AvailablePrefixes, GetterFromPrefix, useTranslation } from './locale-system'
 
 type KeyPrefixConstraint<Context extends ModularContext> = {
@@ -230,7 +236,7 @@ export function locale<
 >(keyPrefix: KeyPrefix) {
   return addTo<Context>()
     .on('locale')
-    .use(
+    .provide(
       (): GetterFromPrefix<KeyPrefix> =>
         useTranslation(keyPrefix),
     )
@@ -255,10 +261,10 @@ export function stage<
   Context extends ModularContext,
   Field extends string,
   Value
->(field: Field, useComputeValue: GetValueGetterFor<Context, Field, Type>) {
+>(field: Field, useComputeValue: GetValueGetterFor<Context, Field, Value>) {
   return addTo<Context>()
     .on(field)
-    .use((args) => wrap(useComputeValue)(args)) 
+    .provide((args) => wrap(useComputeValue)(args)) 
 }
 
 // highlight-next-line
@@ -332,3 +338,76 @@ declare module '@modular-component/stages' {
 In a TypeScript project, the `ModularComponent.register()` function will throw an error
 if you pass a stage that was not added to the `ModularComponentStages` interface.
 :::
+
+## Putting it together
+
+Here is a full example of a "define -> register -> use" loop, for a stage that injects an analytics tracker.
+The tracker itself lives outside the component, so opting into tracking is now a one-line action in each component.
+
+```tsx title="services/analytics.ts"
+export const analyticsTracker = {
+  track({ component, event, props, extra }: {
+    component: string
+    event: string
+    props: Record<string, unknown>
+    extra?: Record<string, unknown>
+  }) {
+    console.log('[track]', component, event, props, extra)
+  },
+}
+```
+
+```tsx title="custom-stages/with-tracking.ts"
+import { ModularComponent, ModularContext } from '@modular-component/core'
+import { addTo, StageParams, StageReturn } from '@modular-component/core/extend'
+import { analyticsTracker } from '../services/analytics'
+
+// Definition
+function tracking<Context extends ModularContext>(
+  componentName: string,
+) {
+  return addTo<Context>()
+    .on('tracking')
+    .provide(({ props }) => ({
+      track(event: string, extra?: Record<string, unknown>) {
+        analyticsTracker.track({
+          component: componentName,
+          event,
+          props,
+          extra,
+        })
+      },
+    }))
+}
+
+type WithTracking<Context extends ModularContext> = (
+  ...args: StageParams<typeof tracking<Context>>
+) => StageReturn<typeof tracking<Context>>
+
+// Registration
+ModularComponent.register({ tracking })
+
+declare module '@modular-component/stages' {
+  interface ModularComponentStages<Context extends ModularContext> {
+    withTracking: WithTracking<Context>
+  }
+}
+```
+
+The registration makes `.withTracking` available everywhere. A component only has to provide its label once;
+the tracker is injected through the stage so consumers never import it directly.
+
+```tsx title="TrackedButton.tsx"
+import { ModularComponent } from '@modular-component/core'
+
+export const TrackedButton = ModularComponent<{ label: string }>()
+  .withTracking('TrackedButton')
+  .withRender(({ props, tracking }) => {
+    tracking.track('rendered')
+
+    return <button>{props.label}</button>
+  })
+```
+
+The `tracking` argument is available for all stages downstream from `withTracking`, making it easy
+to track actions within that component.

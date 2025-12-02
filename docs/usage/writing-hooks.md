@@ -27,8 +27,7 @@ would return whatever value is held inside the `lifecycle` argument, and skip an
 
 ### Returned hook signature
 
-Either by creating the default hook returning the argument map, or creating a dedicated argument hook, the returned
-value is strongly typed in TypeScript projects, as the argument map would be in a stage transform or restriction.
+The returned value of the generated hooks is strongly typed in TypeScript projects, as the argument map would be in a stage transform or restriction.
 
 The same goes for the generated hook parameter: it will have one required parameter, the props of the component,
 which are used to populate the initial argument map passed down the stages. In the specific case where the props type is `{}`
@@ -52,4 +51,4 @@ const useSomeValue = ModularComponent()
 ```
 
 This can get very powerful the more custom stages you add to your factory, exposing application context such as
-stores, internationalisation system, API services, etc. to your hooks.
+stores, internationalization system, API services, etc. to your hooks.

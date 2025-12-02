@@ -19,8 +19,8 @@ at which we could write them.
 
 ## Rationale
 
-When testing components, we often learn to write tests that emulates the way a user would interact with the component.
-While this is perfectly sound advice, those end-up being more integration tests than unit testing, since we're
+When testing components, we often learn to write tests that emulate the way a user would interact with the component.
+While this is perfectly sound advice, those end up being more integration tests than unit testing, since we're
 mixing logic and UI tests in one suite.
 
 For complex components such as forms, this also brings a lot of complexity in tests, or even duplication: to test various
@@ -28,7 +28,7 @@ form submit scenarios for instance, we need to run steps to bring the form to a 
 hand fairly quickly.
 
 This can be helped by splitting the form into smaller components of course, where the submit button or form wrapper would
-receive the form state as props ; or it can be improved a bit by extracting the logic into a custom hook, which can get
+receive the form state as props; or it can be improved a bit by extracting the logic into a custom hook, which can get
 tested in isolation. But this only delays the problem, as testing the final component will still be dependent on the
 logic and the internal state from the hook.
 
@@ -120,6 +120,16 @@ the **lifecycle stage**. The last three are _UI tests_, and are the responsibili
 
 Now let's see how `ModularComponent` helps us test each point easily.
 
+:::note
+This guide uses a made-up mock library for mocking functions, with a simplified API
+for readability's sake.
+
+It also uses a made-up rendering API for testing React components.
+
+In real life, you would adapt those snippets to your testing APIs of choice.
+:::
+
+
 ## Testing lifecycle in isolation
 
 We will write our tests stage by stage, from top to bottom. In our case only two stages contain custom logic: the `lifecycle`
@@ -161,7 +171,7 @@ const mocks = {
 const useLifecycle = LoginForm.stage('lifecycle')
 ```
 
-The generated hook takes in parameter a partial representation of arguments map, allowing you to only pass the upstream stages you know
+The generated hook takes as parameter a partial representation of arguments map, allowing you to only pass the upstream stages you know
 to be relevant. We can easily pass it our mocks we generated earlier.
 
 We therefore get a `useLifecycle` hook that can be tested in isolation, just as if we'd written
@@ -200,7 +210,7 @@ it('should provide an updatable password field', () => {
   expect(result.current.password).toEqual('S3curePassw0rd')
 })
 
-it('should not submit if form fields are empty, and raise an error', () => {
+it('should not submit if form fields are empty, and raise an error', async () => {
   // Arrange
   const { login } = mocks.services.userSession
   login.reset()
@@ -212,14 +222,14 @@ it('should not submit if form fields are empty, and raise an error', () => {
   expect(result.current.error).toEqual('')
   
   // Act
-  result.current.handleSubmit()
+  await result.current.handleSubmit()
   
   // Assert
   expect(login).not.toHaveBeenCalled()
   expect(result.current.error).toEqual('all-fields-are-required')
 })
 
-it('should submit if form fields are set, and navigate upon success', () => {
+it('should submit if form fields are set, and navigate upon success', async () => {
   // Arrange
   const { login } = mocks.services.userSession
   login.reset()
@@ -236,7 +246,8 @@ it('should submit if form fields are set, and navigate upon success', () => {
   // Act
   result.current.handleEmailChange({ currentTarget: { value: 'test@mail.com'} })
   result.current.handlePasswordChange({ currentTarget: { value: 'S3curePassw0rd'} })
-  result.current.handleSubmit()
+  
+  await result.current.handleSubmit()
 
   // Assert
   expect(login).toHaveBeenCalled()
@@ -248,7 +259,7 @@ it('should submit if form fields are set, and navigate upon success', () => {
   expect(result.current.error).toEqual('')
 })
 
-it('should submit if form fields are set, and raise an error upon failure', () => {
+it('should submit if form fields are set, and raise an error upon failure', async () => {
   // Arrange
   const { login } = mocks.services.userSession
   login.reset()
@@ -266,7 +277,8 @@ it('should submit if form fields are set, and raise an error upon failure', () =
   // Act
   result.current.handleEmailChange({ currentTarget: { value: 'test@mail.com'} })
   result.current.handlePasswordChange({ currentTarget: { value: 'S3curePassw0rd'} })
-  result.current.handleSubmit()
+  
+  await result.current.handleSubmit()
 
   // Assert
   expect(login).toHaveBeenCalled()
@@ -286,7 +298,7 @@ And just like this, we tested all our scenarios for logic, while achieving 100% 
 ## Testing the render phase with controlled lifecycle
 
 With our lifecycle behavior tested for all our scenarios, we can move on to testing our render phase.
-Here, we basically want to check that we correctly draw all required elements (a form, two input, a button),
+Here, we basically want to check that we correctly draw all required elements (a form, two inputs, a button),
 _and that interacting with them calls the correct functions in our lifecycle_. Behavior of the lifecycle itself
 is not needed in those tests, as we've already validated it.
 
@@ -310,7 +322,8 @@ const mocks = {
     email: 'test@mail.com',
     password: 'S3curePassw0rd',
     error: '',
-    handleChange: mock.fn(),
+    handleEmailChange: mock.fn(),
+    handlePasswordChange: mock.fn(),
     handleSubmit: mock.fn()
   }
 }
@@ -376,7 +389,7 @@ it('should render a password input controlled by lifecycle', () => {
 
 it('should call the submit handler on form submit', () => {
   // Arrange
-  const onSubmit = mocks.lifecycle.handlePasswordChange
+  const onSubmit = mocks.lifecycle.handleSubmit
   onSubmit.reset()
 
   const { getByRole } = render(<Component {...mocks} />)
@@ -414,15 +427,15 @@ it('should translate known error codes', () => {
   expect(getByText('another-known-error')).toExist()
 })
 
-it('should render a default value for unknwon errors', () => {
+it('should render a default value for unknown errors', () => {
   // Arrange
-  mocks.locale.implementation((key: string) => key === 'an-uknown-error-that-will-get-ignored' ? null : key)
-  mocks.lifecycle.error = 'an-uknown-error-that-will-get-ignored'
+  mocks.locale.implementation((key: string) => key === 'an-unknown-error-that-will-get-ignored' ? null : key)
+  mocks.lifecycle.error = 'an-unknown-error-that-will-get-ignored'
 
   const { getByText } = render(<Component {...mocks} />)
 
   // Assert
-  expect(getByText('an-uknown-error-that-will-get-ignored')).not.toExist()
+  expect(getByText('an-unknown-error-that-will-get-ignored')).not.toExist()
   expect(getByText('unknown-error')).toExist()
 })
 
