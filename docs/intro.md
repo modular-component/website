@@ -9,6 +9,10 @@ sidebar_position: 1
 
 ## What are Modular Components
 
+:::tip
+Prefer the TL;DR? See [Core Concepts](./concepts.md).
+:::
+
 Modular Components are React components built through a modular factory, allowing 
 functionality to be added as the component is being built.
 
