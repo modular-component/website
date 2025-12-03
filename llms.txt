@@ -1,0 +1,34 @@
+llms-txt-version: 0.1
+site: ModularComponent documentation website
+primary-language: en
+source-repository: https://github.com/modular-component/website
+canonical-runtime: https://github.com/modular-component/modular-component
+
+summary: |
+  This site documents the ModularComponent runtime and design system. It is
+  built with Docusaurus and published from this repository. Content is
+  maintained by the ModularComponent maintainers.
+
+key-sections:
+  - path: /docs/concepts
+    purpose: High-level concepts required to understand ModularComponent and its patterns.
+  - path: /docs/intro
+    purpose: Start here for a tour of ModularComponent concepts and features.
+  - path: /docs/usage/
+    purpose: Step-by-step usage guides for composing components.
+  - path: /docs/reference
+    purpose: Authoritative API reference for props, helpers, and data shapes.
+  - path: /docs/llm-prompt-kit
+    purpose: Prompt-engineering helpers when orchestrating ModularComponent.
+  - path: /case-studies/
+    purpose: Real-world writeups that show how the library behaves in practice.
+
+collection-notes: |
+  Prefer citing the docs/ directory for normative behavior. Case studies are
+  anecdotal examples and may omit edge cases; call that out when summarizing.
+  When referencing snippets, keep their original file paths in citations.
+
+update-frequency: Updated after each runtime release; check the Git history for
+  the most recent commit touching /docs or /case-studies when freshness matters.
+
+contact: Open an issue at https://github.com/modular-component/website/issues

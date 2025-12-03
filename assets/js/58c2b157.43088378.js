@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkwebsite=self.webpackChunkwebsite||[]).push([[653],{821:e=>{e.exports=JSON.parse('{"label":"redux","permalink":"/case-studies/tags/redux","allTagsPath":"/case-studies/tags","count":1}')}}]);

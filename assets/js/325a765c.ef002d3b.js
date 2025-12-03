@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkwebsite=globalThis.webpackChunkwebsite||[]).push([[3065],{2332:e=>{e.exports=JSON.parse('{"tags":[{"label":"store","permalink":"/case-studies/tags/store","count":1},{"label":"redux","permalink":"/case-studies/tags/redux","count":1},{"label":"i18n","permalink":"/case-studies/tags/i-18-n","count":1}]}')}}]);

@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkwebsite=self.webpackChunkwebsite||[]).push([[610],{3330:e=>{e.exports=JSON.parse('[{"label":"store","permalink":"/case-studies/tags/store","count":1},{"label":"redux","permalink":"/case-studies/tags/redux","count":1},{"label":"i18n","permalink":"/case-studies/tags/i-18-n","count":1}]')}}]);

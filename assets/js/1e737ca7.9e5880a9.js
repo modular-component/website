@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkwebsite=globalThis.webpackChunkwebsite||[]).push([[3941],{4723:e=>{e.exports=JSON.parse('{"authors":[{"name":"J\xe9r\xe9mie van der Sande","title":"Maintainer of ModularComponent","url":"https://github.com/jvdsande","imageURL":"https://github.com/jvdsande.png","key":"jvdsande","page":null,"count":2}]}')}}]);
