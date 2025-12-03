@@ -8,6 +8,11 @@ title: LLM Prompt Kit
 Copy/paste the sections you need when asking an LLM for help with ModularComponent.
 This gives the model the right mental model before it sees your question or code.
 
+## LLMs.txt file
+
+This documentation provides an <a href="/llms.txt">LLMs.txt</a> file for easy parsing of context
+and navigation by LLMs. You can point LLMs to that file by copying its link above.
+
 ## How to use this page
 
 1. Grab the Architecture Snapshot so the LLM knows what ModularComponent does.
