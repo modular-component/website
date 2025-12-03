@@ -15,7 +15,7 @@ Provides three stages that allow conditional rendering in `ModularComponents`:
 
 ## Usage
 
-:::caution
+:::warning
 `conditionalFallback` and `conditionalRender`'s stage functions are executed _conditionally_.
 
 If the provided `condition` isn't met, `conditionalFallback` does not run its function. If a `conditionalFallback` ran earlier,

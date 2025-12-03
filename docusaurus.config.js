@@ -11,7 +11,6 @@ const config = {
   url: 'https://modular-component.dev',
   baseUrl: '/',
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
 
   // GitHub pages deployment config.
@@ -19,6 +18,16 @@ const config = {
   projectName: 'website',
   deploymentBranch: 'pages',
   trailingSlash: false,
+  clientModules: [
+    './src/scripts/twemoji.ts'
+  ],
+  headTags: [{ tagName: 'link', attributes: { rel: 'alternate', href: '/llms.txt' } }],
+
+  markdown: {
+    hooks: {
+      onBrokenMarkdownLinks: 'warn'
+    }
+  },
 
   i18n: {
     defaultLocale: 'en',
@@ -34,9 +43,6 @@ const config = {
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl:
             'https://github.com/modular-component/website',
-          remarkPlugins: [[require('remark-twemoji'), {
-            base: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/'
-          }]],
           admonitions: {
             keywords: ['note', 'tip', 'info', 'caution', 'danger', 'ref'],
           },
@@ -47,9 +53,6 @@ const config = {
             'https://github.com/modular-component/website',
           path: 'case-studies',
           routeBasePath: 'case-studies',
-          remarkPlugins: [[require('remark-twemoji'), {
-            base: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/'
-          }]]
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
@@ -85,7 +88,7 @@ const config = {
       },
       footer: {
         style: 'dark',
-        copyright: `Copyright © ${new Date().getFullYear()} Jérémie van der Sande. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} Jérémie van der Sande. Built with Docusaurus. <a href="/llms.txt">LLMs friendly</a>.`,
       },
       prism: {
         theme: lightCodeTheme,

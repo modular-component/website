@@ -7,7 +7,7 @@ sidebar_position: 5
 Finally, the last interesting use-case enabled by using `ModularComponent` is component testing. In particular,
 it allows writing component tests as true **unit-tests**, instead of semi-integration tests.
 
-:::caution Disclaimer
+:::warning[Disclaimer]
 There are a lot of strategies and advice for testing React components. Some of the things highlighted
 in this section might not make sense in the context of some of those strategies, or could even
 be considered _bad practice_.

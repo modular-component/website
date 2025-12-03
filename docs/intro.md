@@ -163,7 +163,7 @@ calling `.with/.with<Stage>` again with a different payload for the same field w
 When using TypeScript, the compiler will tell you if a subsequent call to `.with/.with<Stage>` with an existing field causes
 a conflict with the previous value, to ensure coherence between stages.
 
-:::info TypeScript: Forcing a new value on a field
+:::info[TypeScript: Forcing a new value on a field]
 If you are using TypeScript and want to override a field completely without backwards compatibility with its previous
 value (for instance if you know you will be editing all stages depending on the field too), you can replace `.with/.with<Stage>`
 with `.force/.force<Stage>`, which does the same internally but bypasses the type checking.
