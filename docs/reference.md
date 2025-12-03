@@ -1,5 +1,5 @@
 ---
-sidebar_position: 3
+sidebar_position: 5
 title: Reference
 ---
 
@@ -13,6 +13,15 @@ Here is the complete type reference of every export from `@modular-component/cor
 The `ModularComponent<Context>` type is the type returned by calling the [`ModularComponent`](#function-modularcomponent) factory function,
 or any of its factory methods. It takes a single generic type parameter, `Context`, of type [`ModularContext`](#type-modularcontext), describing
 the combined state of all stages that have been assigned to it.
+
+#### When to use it
+
+You should almost never need to use it manually. It is used internally as the return type of [`ModularComponent`](#function-modularcomponent).
+
+#### Parameters
+
+ - `Context`: [`ModularContext`](#type-modularcontext) - description of all stages added to the Modular Component, including props,
+   arguments, constraints...
 
 <details>
 <summary>Reveal type</summary>
@@ -93,9 +102,12 @@ export type ModularComponent<Context extends ModularContext> =
 ### Type: `ModularContext`
 
 :::ref
-The `ModularContext` type is the base type that all `ModularComponent`'s contexts will extend. In almost all cases,
-you should not care about what this type looks like, it is simply passed around by stage functions to compute the
-next context after running the stage.
+The `ModularContext` type is the base type that all `ModularComponent`'s contexts will extend. 
+
+#### When to use it
+
+In almost all cases, you should not care about what this type looks like, it is simply passed around by stage 
+functions to compute the next context after running the stage.
 
 Instead, you should rely on the provided type helpers for extracting useful information from the context:
 - [`GetArgsFor`](#type-getargsforcontext-field)
@@ -125,6 +137,16 @@ export type ModularContext = {
 :::ref
 Typing information for [registering](./usage/writing-custom-stages.md#registering-the-stage) the [`render`](#function-render) stage.
 
+#### When to use it
+
+You can use `WithRender<Context>` if you want to [manually register](./usage/writing-custom-stages.md#registering-the-stage)
+the [`render`](#function-render) stage in your app.
+
+#### Parameters
+
+- `Context`: [`ModularContext`](#type-modularcontext) - current context of the ModularComponent `render` is called on. Provided either by
+  `ModularComponent::with`, or through `ModularComponentStages` type augmentation.
+
 <details>
 <summary>Reveal type</summary>
 
@@ -152,10 +174,19 @@ export type WithRender<Context extends ModularContext> = (
 The `ModularComponent` function creates a new `ModularComponent`, which can then be extended by
 chaining stage methods.
 
-It takes an optional `displayName` as parameter for setting the React debugging display name,
-and takes two optional generic type parameters: `Props` for setting the props accepted by the
-component, and `Ref` for setting the type of the forwarded ref. In cases where `Ref` is set,
-it's your responsibility to wrap the `ModularComponent` call inside `React.forwardRef`.
+#### When to use it
+
+Use `ModularComponent` to create a new `ModularComponent`.
+
+#### Function parameters
+
+- `displayName?: string`: Optional `displayName` parameter for setting the React debugging display name.
+
+#### Type parameters
+
+- `Props`: Optional, sets the props accepted by the component, 
+- `Ref`: Optional, sets the type of the forwarded ref. In cases where `Ref` is set,
+  it's your responsibility to wrap the `ModularComponent` call inside `React.forwardRef`.
 
 <details>
 <summary>Reveal type</summary>
@@ -187,8 +218,24 @@ export function ModularComponent<Props extends {} = {}, Ref = never>(
 ### Function: `render`
 
 :::ref
-Stage function providing the default `render` stage, accepting a single argument as a function
+Stage function providing the default `render` stage, accepting as single argument a function
 receiving the consolidated stages arguments and returning a `ReactNode`.
+
+#### When to use it
+
+Use it in the `ModularComponent::with` method to add a render stage; or use it with `ModularComponent.register`
+to register the `ModularComponent::withRender` stage function for usage across your app.
+
+#### Function parameters
+
+- `useRender: GetValueGetterFor<Context, 'render', ReturnType<FunctionComponent>>`: either a React node, or a function
+  returning a React node. If a function is provided, it receives as only parameter the arguments map consolidated from
+  all upstream stages.
+
+#### Type parameters
+
+-  `Context`: [`ModularContext`](#type-modularcontext) - current context of the ModularComponent `render` is called on.
+   Inferred from either `ModularComponent::with` or `ModularComponent::withRender`
 
 <details>
 <summary>Reveal type</summary>
@@ -214,6 +261,17 @@ export function render<Context extends ModularContext>(
 :::ref
 This type is mostly used internally in [`StageReturn`](#type-stagereturnfn). It takes a `ModularContext`
 and appends a stage at the given `Field` with the given `Type`, returning a new context.
+
+#### When to use it
+
+Use this type when you need to create a new `ModularContext` from a previous one.
+Mostly use internally by [`StageReturn`](#type-stagereturnfn), you should only need it for very advanced use-cases.
+
+#### Parameters
+
+- `Context`: [`ModularContext`](#type-modularcontext) - current context to modify
+- `Field: string`: string constant type setting the field on which the new type is added to the arguments map.
+- `Type: any`: type to use for the injected field, as well as use as constraint for future overrides of that field.
 
 <details>
 <summary>Reveal type</summary>
@@ -259,6 +317,16 @@ Extract the arguments available for computing a given field, based on the provid
 We either map the arguments against what was saved in `Context['stages'][Field]`, or, if it's the
 first time we see this field, we provide the full latest `Context['arguments']`.
 
+#### When to use it
+
+Use that type when you're building a stage function that needs to infer the arguments available in the
+`provide` call for a given field.
+
+#### Parameters
+
+- `Context`: [`ModularContext`](#type-modularcontext) - current context to read from
+- `Field: string`: string constant type setting the field for which we want to retrieve arguments
+
 <details>
 <summary>Reveal type</summary>
 
@@ -281,6 +349,16 @@ the initial contract.
 
 If the field was not specified in the `constraints`, then we apply the `Default` value as constraint.
 
+#### When to use it
+
+Use that type when you're building a stage function, in order to correctly infer the return type of the `provide`
+call for the field, while respecting any constraint set for that field in an earlier stage call.
+
+#### Parameters
+
+- `Context`: [`ModularContext`](#type-modularcontext) - current context to read from
+- `Field: string`: string constant type setting the field for which we want to retrieve the constraint
+
 <details>
 <summary>Reveal type</summary>
 
@@ -300,6 +378,18 @@ export type GetConstraintFor<
 
 :::ref
 Creates a type encapsulating the provided `Type`, either as a raw value or as a function of the `Field`'s arguments.
+
+#### When to use it
+
+Use that type when you're building a stage function, and want to type one of your parameters to allow users to provide
+either a raw value or a value getter computing the value from the arguments map,
+which is our [recommended pattern](./usage/writing-custom-stages.md#getvaluegetterfor-and-wrap-recommended).
+
+#### Parameters
+
+- `Context`: [`ModularContext`](#type-modularcontext) - current context to read from
+- `Field: string`: string constant type setting the field for which we want to retrieve the arguments
+- `Type: any`: type of the accepted raw value or accepted return value for the value getter
 
 <details>
 <summary>Reveal type</summary>
@@ -325,7 +415,10 @@ See [`ModularContext`](#type-modularcontext)
 :::ref
 This type takes a stage provider function and extracts its parameters.
 
+#### When to use it
+
 Use it to build your [registration type information](./usage/writing-custom-stages.md#providing-a-type-for-registering-the-stage).
+It will automatically infer the parameters taken by your stage function provider.
 
 <details>
 <summary>Reveal type</summary>
@@ -342,7 +435,10 @@ export type StageParams<Fn extends (...args: any[]) => any> = Parameters<Fn>
 This type takes a stage provider function and computes the return value of the registered stage
 function: a `ModularComponent` modified by the stage function with a new field.
 
+#### When to use it
+
 Use it to build your [registration type information](./usage/writing-custom-stages.md#providing-a-type-for-registering-the-stage).
+It will automatically infer the return type of the created `ModularComponent::with{Stage}` function.
 
 <details>
 <summary>Reveal type</summary>
@@ -369,6 +465,15 @@ export type StageReturn<
 Function used to easily build a stage function. See [Writing custom stages: addTo helper](./usage/writing-custom-stages.md#the-addto-helper) for more
 details.
 
+#### When to use it
+
+Use it to build your stage functions.
+
+#### Type parameters
+
+- `Context`: [`ModularContext`](#type-modularcontext) - context of the ModularComponent the stage function will be
+  called on. Should be inferred from your stage function provider.
+
 <details>
 <summary>Reveal type</summary>
 
@@ -390,6 +495,21 @@ export function addTo<Context extends ModularContext>(): {
 :::ref
 Function used to easily build a stage function. See [Writing custom stages: wrap helper](./usage/writing-custom-stages.md#getvaluegetterfor-and-wrap-recommended) for more
 details.
+
+#### When to use it
+
+Use `wrap` when your stage function provider receives a parameter of type [`GetValueGetterFor`](#type-getvaluegetterforcontext-field-type),
+to safely convert it into a value getter function every time so you can call it with the received args. It
+takes care of checking if the received value is already a function, or if it is a raw value needing to be wrapped.
+
+#### Function parameters
+
+- `useFn: Type | ((args: Args) => Type)`: the variable holding either a raw value or a value getter, to be wrapped.
+
+#### Type parameters
+
+- Args: arguments of the value getter. Inferred automatically from the passed value if it's a function.
+- Type: type of the value or return type of the value getter. Inferred automatically from the passed value.
 
 <details>
 <summary>Reveal type</summary>
