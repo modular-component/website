@@ -496,6 +496,9 @@ h2 {
     border-radius: var(--radius-lg);
     border: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
     background: color-mix(in srgb, var(--surface) 65%, transparent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .nodes {
     display: grid;
