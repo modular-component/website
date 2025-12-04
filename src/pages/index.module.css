@@ -604,6 +604,32 @@ h2 {
     .brand { min-width: auto; }
 }
 
+@media (max-width: 560px) {
+    .header .nav {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .brand div > span {
+        white-space: nowrap;
+    }
+
+    .navCta {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        width: 100%;
+        max-width: 400px;
+
+        .btn {
+            flex: 1;
+            width: 100%;
+            white-space: nowrap;
+            justify-content: space-between;
+        }
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; scroll-behavior: auto !important; }
 }

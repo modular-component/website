@@ -31,7 +31,7 @@ function HomepageContent() {
               </div>
               <div>
                 <strong data-code>ModularComponent</strong>
-                <span>🍞.with(🍅).with(🧀) = 🥪</span>
+                <span>🍞<wbr/>.with(🍅)<wbr/>.with(🧀) = 🥪</span>
               </div>
             </a>
 
