@@ -613,6 +613,7 @@ h2 {
     .nodes {
         display: flex;
         flex-direction: column;
+        width: 100%;
     }
 
     .node {

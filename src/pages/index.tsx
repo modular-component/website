@@ -23,6 +23,7 @@ function HomepageContent() {
       document.getElementById('bg').style.top = (-window.scrollY * 2 / 3) + 'px'
     }
     window.addEventListener('scroll', update)
+    update()
     return () => window.removeEventListener('scroll', update)
   }, []);
 
