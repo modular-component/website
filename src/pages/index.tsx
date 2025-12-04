@@ -38,11 +38,11 @@ function HomepageContent() {
             <div className={styles.navCta}>
               <a className={styles.btn + ' ' + styles.ghost} href="/docs/reference">
                 Reference
-                <FaAsterisk />
+                <FaAsterisk/>
               </a>
               <a className={styles.btn + ' ' + styles.primary} href="/docs/intro">
                 Get started
-                <FaChevronRight />
+                <FaChevronRight/>
               </a>
             </div>
           </div>
@@ -61,22 +61,23 @@ function HomepageContent() {
 
                 <h1 className={styles.h1}>Build components through clean, predictable pipelines</h1>
                 <p className={styles.subhead}>
-                  <strong data-code>ModularComponent</strong> composes React components through a modular factory: add capabilities stage-by-stage,
+                  <strong data-code>ModularComponent</strong> composes React components through a modular factory: add
+                  capabilities stage-by-stage,
                   keep concerns isolated, and make testing feel native.
                 </p>
 
                 <div className={styles.heroActions}>
                   <a className={styles.btn + ' ' + styles.primary} href="/docs/intro">
                     Read the docs
-                    <FaChevronRight />
+                    <FaChevronRight/>
                   </a>
                   <a className={styles.btn} href="/docs/extensions/writing-extensions">
                     Write an extension
-                    <FaPlus />
+                    <FaPlus/>
                   </a>
                   <a className={styles.btn + ' ' + styles.ghost} href="/docs/intro#installation">
                     Install
-                    <FaDownload />
+                    <FaDownload/>
                   </a>
                 </div>
 
@@ -94,7 +95,8 @@ function HomepageContent() {
                 </div>
                 <pre><code><span className={styles.tokC}>// install</span>
 <br/>
-npm i <span className={styles.tokS}>@modular-component/core</span> <span className={styles.tokS}>@modular-component/default</span>
+npm i <span className={styles.tokS}>@modular-component/core</span> <span
+                    className={styles.tokS}>@modular-component/default</span>
 <br/>
 <br/>
 <span className={styles.tokC}>// register stages (recommended)</span>
@@ -107,18 +109,20 @@ npm i <span className={styles.tokS}>@modular-component/core</span> <span classNa
 <br/>
 
 <span className={styles.tokK}>export</span> <span className={styles.tokK}>const</span> <span
-                    className={styles.tokF}>Counter</span> = <span className={styles.tokF}>ModularComponent</span>&lt;&#123;
-                  <br />&nbsp;
+                    className={styles.tokF}>Counter</span> = <span
+                    className={styles.tokF}>ModularComponent</span>&lt;&#123;
+                  <br/>&nbsp;
                   step?: number
-                  <br />
+                  <br/>
                   &#125;&gt;(<span
                     className={styles.tokS}>'Counter'</span>)
 <br/>&nbsp;
-                  .<span className={styles.tokF}>withDefaultProps</span>(&#123; step: 1 &#125;)
+                  .<span className={styles.tokF}>withDefaultProps</span>(&#123; step: <span className={styles.tokK}>1</span> &#125;)
 <br/>&nbsp;
                   .<span className={styles.tokF}>withLifecycle</span>((&#123; props &#125;) =&gt; &#123;
                   <br/>&nbsp;&nbsp;&nbsp;&nbsp;
-                  <span className={styles.tokK}>const</span> [count, setCount] = <span className={styles.tokF}>useState</span>(0)
+                  <span className={styles.tokK}>const</span> [count, setCount] = <span
+                    className={styles.tokF}>useState</span>(<span className={styles.tokK}>0</span>)
                   <br/>&nbsp;&nbsp;&nbsp;&nbsp;
                   <span className={styles.tokK}>return</span> &#123; count, inc: () =&gt; <span
                     className={styles.tokF}>setCount</span>(c =&gt; c + props.step) &#125;
@@ -152,7 +156,7 @@ npm i <span className={styles.tokS}>@modular-component/core</span> <span classNa
             <div className={styles.features} role="list">
               <article className={styles.feature} role="listitem">
                 <div className={styles.ficon} aria-hidden="true">
-                  <FaMicrochip />
+                  <FaMicrochip/>
                 </div>
                 <h3>Extensible factory</h3>
                 <p>Compose reusable stages to build consistent components across your codebase.</p>
@@ -160,7 +164,7 @@ npm i <span className={styles.tokS}>@modular-component/core</span> <span classNa
 
               <article className={styles.feature} role="listitem">
                 <div className={styles.ficon} aria-hidden="true">
-                  <FaAlignLeft />
+                  <FaAlignLeft/>
                 </div>
                 <h3>Delightfully organized</h3>
                 <p>Separate markup, lifecycle/state, and wiring—without losing readability.</p>
@@ -168,7 +172,7 @@ npm i <span className={styles.tokS}>@modular-component/core</span> <span classNa
 
               <article className={styles.feature} role="listitem">
                 <div className={styles.ficon} aria-hidden="true">
-                  <FaMicroscope />
+                  <FaMicroscope/>
                 </div>
                 <h3>Deeply testable</h3>
                 <p>Isolate stages for tests, or turn pipelines into hooks when you don’t need rendering.</p>
@@ -265,19 +269,20 @@ npm i <span className={styles.tokS}>@modular-component/core</span> <span classNa
                 <h3>Define a pipeline</h3>
                 <p>Compose stages with a readable chain and keep JSX at the edge.</p>
                 <div className={styles.miniPre}>
-            <pre><code><span className={styles.tokK}>const</span> <span className={styles.tokF}>MyComponent</span> = <span
+            <pre><code><span className={styles.tokK}>const</span> <span
+              className={styles.tokF}>MyComponent</span> = <span
               className={styles.tokF}>ModularComponent</span>&lt;&#123; label: string &#125;&gt;()
               <br/>&nbsp;
-  .<span className={styles.tokF}>withDefaultProps</span>(&#123; label: 'Hello' &#125;)
+              .<span className={styles.tokF}>withDefaultProps</span>(&#123; label: <span className={styles.tokS}>'Hello'</span> &#125;)
               <br/>&nbsp;
-  .<span className={styles.tokF}>withLifecycle</span>((&#123; props &#125;) =&gt; (&#123;
+              .<span className={styles.tokF}>withLifecycle</span>((&#123; props &#125;) =&gt; (&#123;
               <br/>&nbsp;&nbsp;&nbsp;
               upper: props.label.<span
                 className={styles.tokF}>toUpperCase</span>()
               <br/>&nbsp;
               &#125;))
               <br/>&nbsp;
-  .<span className={styles.tokF}>withRender</span>((&#123; lifecycle &#125;) =&gt; (
+              .<span className={styles.tokF}>withRender</span>((&#123; lifecycle &#125;) =&gt; (
               <br/>&nbsp;&nbsp;&nbsp;
               &lt;<span
                 className={styles.tokF}>h2</span>&gt;&#123;lifecycle.upper&#125;&lt;/<span
@@ -290,11 +295,11 @@ npm i <span className={styles.tokS}>@modular-component/core</span> <span classNa
 
                 <a className={styles.btn + ' ' + styles.primary} href="/docs/intro">
                   Dive deeper
-                  <FaChevronRight />
+                  <FaChevronRight/>
                 </a>
                 <a className={styles.btn} href="/docs/extensions/writing-extensions" style={{marginLeft: '8px'}}>Explore
                   extensions
-                  <FaMagnifyingGlass />
+                  <FaMagnifyingGlass/>
                 </a>
               </div>
             </div>
