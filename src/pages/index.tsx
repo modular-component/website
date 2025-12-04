@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useLayoutEffect} from 'react';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import Logo from '@site/static/img/logo.svg';
@@ -18,9 +18,17 @@ import styles from './index.module.css'
 function HomepageContent() {
   const {siteConfig} = useDocusaurusContext();
 
+  useLayoutEffect(() => {
+    const update = () => {
+      document.getElementById('bg').style.top = (-window.scrollY * 2 / 3) + 'px'
+    }
+    window.addEventListener('scroll', update)
+    return () => window.removeEventListener('scroll', update)
+  }, []);
+
   return (
     <>
-      <div className={styles.bg} aria-hidden="true"></div>
+      <div id="bg" className={styles.bg} aria-hidden="true"></div>
 
       <header className={styles.header}>
         <div className={styles.container}>
