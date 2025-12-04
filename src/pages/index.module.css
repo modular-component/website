@@ -679,6 +679,7 @@ h2 {
 
 @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; scroll-behavior: auto !important; }
+    .codecard { transform: none }
 }
 
 strong[data-code] {
