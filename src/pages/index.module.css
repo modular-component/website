@@ -431,6 +431,14 @@ h2 {
     font-size: 14px;
 }
 
+.codecard {
+    transition: transform .3s;
+    transform: scale(1.05) perspective(100rem) rotateY(-15deg);
+}
+.codecard:hover {
+    transform: none;
+}
+
 .features {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
