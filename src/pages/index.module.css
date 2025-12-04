@@ -476,6 +476,9 @@ h2 {
     transform: translateY(1px);
 }
 .ficon svg { opacity: 0.95; }
+.feature:nth-child(2) .ficon {
+    background: linear-gradient(135deg, color-mix(in srgb, var(--accent-2) 24%, transparent), color-mix(in srgb, var(--accent) 18%, transparent));
+}
 
 /* Pipeline diagram */
 .pipeline {
