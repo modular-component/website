@@ -301,12 +301,13 @@ html[data-theme="light"] {
     border: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
     background: color-mix(in srgb, var(--surface) 70%, transparent);
     color: var(--muted);
-    font-size: 13px;
+    font-size: clamp(10px, 2.7vw, 13px);
     font-family: var(--font-mono);
 }
 .dot {
     width: 8px;
     height: 8px;
+    flex: none;
     border-radius: 999px;
     background: var(--accent);
     box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 28%, transparent);
@@ -633,7 +634,7 @@ h2 {
         white-space: nowrap;
     }
 
-    .navCta {
+    .navCta, .heroActions {
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
@@ -645,6 +646,14 @@ h2 {
             width: 100%;
             white-space: nowrap;
             justify-content: space-between;
+        }
+    }
+
+    .heroActions {
+        max-width: none;
+
+        .btn:first-child {
+            flex: none;
         }
     }
 }
