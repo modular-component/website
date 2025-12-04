@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en" data-theme="auto">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <title>ModularComponent — .with().with() =</title>
+  <meta
+      name="description"
+      content="Delightfully organized and deeply testable React components built through a modular factory pipeline."
+  />
+
+  <link rel="stylesheet" href="test.css" />
+</head>
+
+<body>
+<div class="bg" aria-hidden="true"></div>
+
+<header>
+  <div class="container">
+    <div class="nav">
+      <a class="brand" href="#" aria-label="ModularComponent home">
+        <div class="logo" aria-hidden="true">
+          <img src="/img/logo.svg" alt="" />
+        </div>
+        <div>
+          <strong>ModularComponent</strong>
+          <span>🍞.with(🍅).with(🧀) = 🥪</span>
+        </div>
+      </a>
+
+      <nav>
+        <ul>
+          <li><a class="navlink" href="/docs/intro">Documentation</a></li>
+          <li><a class="navlink" href="/case-studies/">Case Studies</a></li>
+          <li><a class="navlink" href="/docs/extensions/writing-extensions">Extensions</a></li>
+          <li><a class="navlink" href="/docs/reference">Reference</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-cta">
+        <a class="btn ghost" href="https://github.com/modular-component/modular-component" target="_blank" aria-label="GitHub">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+                d="M12 2.5c-5.3 0-9.5 4.2-9.5 9.5 0 4.2 2.7 7.7 6.5 9 .5.1.7-.2.7-.5v-1.7c-2.7.6-3.3-1.2-3.3-1.2-.4-1-.9-1.3-.9-1.3-.8-.5.1-.5.1-.5.9.1 1.4.9 1.4.9.8 1.4 2.2 1 2.7.8.1-.6.3-1 .5-1.2-2.2-.2-4.5-1.1-4.5-5 0-1.1.4-2 1-2.7-.1-.2-.4-1.2.1-2.6 0 0 .8-.2 2.7 1 .8-.2 1.6-.3 2.4-.3s1.6.1 2.4.3c1.9-1.2 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.6.6.7 1 1.6 1 2.7 0 3.9-2.3 4.8-4.5 5 .3.3.6.9.6 1.8v2.6c0 .3.2.6.7.5 3.8-1.3 6.5-4.8 6.5-9 0-5.3-4.2-9.5-9.5-9.5Z"
+                fill="currentColor"
+                opacity=".9"
+            />
+          </svg>
+          GitHub
+        </a>
+        <a class="btn primary" href="/docs/intro">
+          Get started
+          <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M10 17l5-5-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="container">
+      <div class="hero-grid">
+        <div>
+          <div class="kicker">
+            <span class="dot" aria-hidden="true"></span>
+            Typed factory pipeline for React components
+          </div>
+
+          <h1>Build components as a pipeline — not a tangle.</h1>
+          <p class="subhead">
+            ModularComponent composes React components through a modular factory: add capabilities stage-by-stage,
+            keep concerns isolated, and make testing feel native.
+          </p>
+
+          <div class="hero-actions">
+            <a class="btn primary" href="/docs/intro">
+              Read the docs
+              <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M10 17l5-5-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <a class="btn" href="/docs/extensions/writing-extensions">
+              Write an extension
+              <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </a>
+            <a class="btn ghost" href="/docs/intro#installation">Install</a>
+          </div>
+
+          <div class="hero-meta">
+            <span class="pill"><code>.with()</code> compose stages</span>
+            <span class="pill"><code>.use()</code> generate hooks</span>
+            <span class="pill"><code>.stage()</code> isolate for tests</span>
+          </div>
+        </div>
+
+        <aside class="card codecard" aria-label="Example code">
+          <div class="card-head">
+            <div class="window-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="label">Modular factory pipeline</div>
+          </div>
+          <pre><code><span class="tok-c">// install</span>
+npm i <span class="tok-s">@modular-component/core</span> <span class="tok-s">@modular-component/default</span>
+
+<span class="tok-c">// register stages (recommended)</span>
+<span class="tok-k">import</span> <span class="tok-s">'@modular-component/default/register'</span>
+<span class="tok-k">import</span> &#123; <span class="tok-f">ModularComponent</span> &#125; <span class="tok-k">from</span> <span class="tok-s">'@modular-component/core'</span>
+
+<span class="tok-k">export</span> <span class="tok-k">const</span> <span class="tok-f">Counter</span> = <span class="tok-f">ModularComponent</span>&lt;&#123; step?: number &#125;&gt;(<span class="tok-s">'Counter'</span>)
+  .<span class="tok-f">withDefaultProps</span>(&#123; step: 1 &#125;)
+  .<span class="tok-f">withLifecycle</span>((&#123; props &#125;) =&gt; &#123;
+    <span class="tok-k">const</span> [count, setCount] = <span class="tok-f">useState</span>(0)
+    <span class="tok-k">return</span> &#123; count, inc: () =&gt; <span class="tok-f">setCount</span>(c =&gt; c + props.step) &#125;
+  &#125;)
+  .<span class="tok-f">withRender</span>((&#123; lifecycle &#125;) =&gt; (
+    &lt;<span class="tok-f">button</span> onClick=&#123;lifecycle.inc&#125;&gt;&#123;lifecycle.count&#125;&lt;/<span class="tok-f">button</span>&gt;
+  ))</code></pre>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <h2>Why teams adopt ModularComponent</h2>
+          <p class="section-desc">
+            The factory approach lets you add functionality as the component is built, keeping JSX focused while
+            other stages handle state, wiring, and cross-cutting concerns.
+          </p>
+        </div>
+      </div>
+
+      <div class="features" role="list">
+        <article class="feature" role="listitem">
+          <div class="ficon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M7 7h10v10H7z" stroke="currentColor" stroke-width="2" opacity=".9"/>
+              <path d="M4 12h3M17 12h3M12 4v3M12 17v3" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".9"/>
+            </svg>
+          </div>
+          <h3>Extensible factory</h3>
+          <p>Compose reusable stages to build consistent components across your codebase.</p>
+        </article>
+
+        <article class="feature" role="listitem">
+          <div class="ficon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M7 6h10M7 12h10M7 18h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".9"/>
+            </svg>
+          </div>
+          <h3>Delightfully organized</h3>
+          <p>Separate markup, lifecycle/state, and wiring—without losing readability.</p>
+        </article>
+
+        <article class="feature" role="listitem">
+          <div class="ficon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M9 17l-2 2-3-3 2-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".9"/>
+              <path d="M15 7l2-2 3 3-2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".9"/>
+              <path d="M8 16L16 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".9"/>
+            </svg>
+          </div>
+          <h3>Deeply testable</h3>
+          <p>Isolate stages for tests, or turn pipelines into hooks when you don’t need rendering.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <h2>How it works</h2>
+          <p class="section-desc">
+            Build a pipeline of ordered stages. Each stage populates a shared argument map for downstream stages.
+          </p>
+        </div>
+      </div>
+
+      <div class="pipeline">
+        <div class="pipe-row">
+          <div class="diagram" aria-label="Pipeline diagram">
+            <div class="nodes">
+              <div class="node">
+                <strong>props</strong>
+                <span>defaults, validation, adapters</span>
+              </div>
+              <div class="node">
+                <strong>logic</strong>
+                <span>hooks, state, effects, data</span>
+              </div>
+              <div class="node">
+                <strong>render</strong>
+                <span>focused JSX, minimal glue</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="callouts">
+            <h3>Smart patterns and helpers</h3>
+
+            <div class="callout">
+              <code>.use()</code>
+              <p>Turn a pipeline into a hook (or isolate a single field).</p>
+            </div>
+
+            <div class="callout">
+              <code>.stage('…')</code>
+              <p>Extract a stage to unit-test it with fully controlled inputs.</p>
+            </div>
+
+            <div class="callout">
+              <code>/register</code>
+              <p>Extensions can offer a register entrypoint for automatic stage registration.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <h2>Get productive in minutes</h2>
+          <p class="section-desc">
+            Start with the core factory, add the default stage pack, and grow into custom stages as your app needs.
+          </p>
+        </div>
+      </div>
+
+      <div class="split">
+        <div class="panel">
+          <h3>Install</h3>
+          <p>Core + the recommended default capability pack.</p>
+          <div class="mini-pre">
+            <pre><code>npm install <span class="tok-s">@modular-component/core @modular-component/default</span></code></pre>
+          </div>
+
+          <div style="height: 12px;"></div>
+
+          <h3>Register stages</h3>
+          <p>Keep component definitions clean with stage registration.</p>
+          <div class="mini-pre">
+            <pre><code><span class="tok-k">import</span> <span class="tok-s">'@modular-component/default/register'</span></code></pre>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Define a pipeline</h3>
+          <p>Compose stages with a readable chain and keep JSX at the edge.</p>
+          <div class="mini-pre">
+            <pre><code><span class="tok-k">const</span> <span class="tok-f">MyComponent</span> = <span class="tok-f">ModularComponent</span>&lt;&#123; label: string &#125;&gt;()
+  .<span class="tok-f">withDefaultProps</span>(&#123; label: 'Hello' &#125;)
+  .<span class="tok-f">withLifecycle</span>((&#123; props &#125;) =&gt; (&#123; upper: props.label.<span class="tok-f">toUpperCase</span>() &#125;))
+  .<span class="tok-f">withRender</span>((&#123; lifecycle &#125;) =&gt; &lt;<span class="tok-f">h2</span>&gt;&#123;lifecycle.upper&#125;&lt;/<span class="tok-f">h2</span>&gt;)</code></pre>
+          </div>
+
+          <div style="height: 14px;"></div>
+
+          <a class="btn primary" href="/docs/intro">
+            Dive deeper
+            <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M10 17l5-5-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+          <a class="btn" href="/docs/extensions/writing-extensions" style="margin-left: 8px;">Explore extensions</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <div class="foot">
+        <div>
+          <strong style="color: var(--text);">ModularComponent</strong>
+          <div style="margin-top: 4px; font-size: 13px;">
+            A modular factory pipeline for delightfully organized, deeply testable React components.
+          </div>
+        </div>
+        <div>
+          <a href="/docs/">Docs</a>
+          <a href="/case-studies/">Case studies</a>
+          <a href="/docs/extensions/writing-extensions">Extensions</a>
+          <a target="_blank" href="https://github.com/modular-component/modular-component">GitHub</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+</main>
+</body>
+</html>
