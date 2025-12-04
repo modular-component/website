@@ -291,16 +291,16 @@ npm i <span className={styles.tokS}>@modular-component/core</span> <span
               ))</code></pre>
                 </div>
 
-                <div style={{height: '14px'}}></div>
-
+                <div className={styles.heroActions}>
                 <a className={styles.btn + ' ' + styles.primary} href="/docs/intro">
                   Dive deeper
                   <FaChevronRight/>
                 </a>
-                <a className={styles.btn} href="/docs/extensions/writing-extensions" style={{marginLeft: '8px'}}>Explore
+                <a className={styles.btn} href="/docs/extensions/writing-extensions">Explore
                   extensions
                   <FaMagnifyingGlass/>
                 </a>
+                </div>
               </div>
             </div>
           </div>
