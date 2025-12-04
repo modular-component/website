@@ -630,6 +630,10 @@ h2 {
         flex-direction: column;
     }
 
+    .header {
+        top: 0;
+    }
+
     .brand div > span {
         white-space: nowrap;
     }
