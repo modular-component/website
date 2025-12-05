@@ -4,10 +4,8 @@
    ========================================================= */
 :root {
     /* Typography */
-    --font-sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
-    "Apple Color Emoji", "Segoe UI Emoji";
-    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
-    "Courier New", monospace;
+    --font-sans: "Source Sans 3";
+    --font-mono: "Maple Mono";
 
     /* Sizing / layout */
     --container: 1220px;
@@ -48,6 +46,10 @@
     --glow-2: rgba(58, 123, 255, 0.25);
 }
 
+[class].footer--dark {
+    --ifm-footer-background-color: var(--surface-2);
+}
+
 html[data-theme="dark"] {
     --bg: #070a12;
     --surface: rgba(15, 23, 42, 0.52);
@@ -75,8 +77,13 @@ html[data-theme="dark"] {
    ========================================================= */
 
 .container {
+    font-family: var(--font-sans);
     width: min(var(--container), calc(100% - 40px));
     margin: 0 auto;
+
+    code {
+        font-family: var(--font-mono);
+    }
 }
 
 /* Subtle grid + glow background */
@@ -177,12 +184,12 @@ html[data-theme="dark"] {
 }
 
 .brand strong {
-    font-size: 14px;
+    font-size: 16px;
     letter-spacing: 0.2px;
 }
 .brand span {
     display: block;
-    font-size: 12px;
+    font-size: 13px;
     color: var(--muted);
     font-family: var(--font-mono);
 }
@@ -218,6 +225,7 @@ html[data-theme="dark"] {
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
     background: color-mix(in srgb, var(--surface-2) 88%, transparent);
+    text-decoration: none;
 }
 .btn.primary {
     border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
@@ -366,13 +374,13 @@ pre {
     background: var(--code-bg);
     color: var(--code-text);
     font-family: var(--font-mono);
-    font-size: 12.7px;
+    font-size: 12px;
     line-height: 1.5;
 }
 .tokK { color: color-mix(in srgb, var(--accent-2) 70%, white); }
 .tokF { color: color-mix(in srgb, var(--accent) 75%, white); }
 .tokS { color: color-mix(in srgb, var(--danger) 65%, white); }
-.tokC { color: var(--code-muted); }
+.tokC { color: var(--code-muted); font-style: italic; }
 
 /* =========================================================
    SECTIONS
@@ -401,7 +409,7 @@ h2 {
 
 .codecard {
     transition: transform .3s;
-    transform: scale(1.05) perspective(100rem) rotateY(-15deg);
+    transform: scale(1.05) perspective(100rem) rotateY(-10deg) translateX(-1%);
 }
 .codecard:hover {
     transform: none;
@@ -438,7 +446,7 @@ h2 {
 .feature p {
     margin: 0;
     color: var(--muted);
-    font-size: 13.5px;
+    font-size: 14px;
     grid-area: description;
 }
 .ficon {
@@ -484,6 +492,7 @@ h2 {
     background: color-mix(in srgb, var(--surface-2) 70%, transparent);
     border: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
     min-height: 86px;
+    height: 100%;
 }
 .node strong {
     font-size: 13px;
@@ -560,7 +569,7 @@ h2 {
     overflow: hidden;
 }
 .panel h3 { margin: 0 0 10px; font-size: 15px; }
-.panel p { margin: 0 0 12px; color: var(--muted); font-size: 13.5px; }
+.panel p { margin: 0 0 12px; color: var(--muted); font-size: 14px; }
 .miniPre {
     border-radius: 16px;
     overflow: hidden;
