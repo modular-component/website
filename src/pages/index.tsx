@@ -241,7 +241,7 @@ function HomepageContent() {
               <ul>
                 <li><a href="/docs/intro">Documentation</a></li>
                 <li><a href="/docs/reference">Reference</a></li>
-                <li><a href="/case-studies">Case studies</a></li>
+                <li><a href="/case-studies">Case Studies</a></li>
               </ul>
             </nav>
 
