@@ -1,12 +1,14 @@
 import React, {useLayoutEffect} from 'react';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import {useColorMode} from '@docusaurus/theme-common';
 import Layout from '@theme/Layout';
+import ColorModeToggle from '@theme/ColorModeToggle';
 import Logo from '@site/static/img/logo.svg';
 import {
   FaAlignLeft,
   FaAsterisk,
   FaChevronRight,
-  FaDownload,
+  FaDownload, FaGithub,
   FaMagnifyingGlass,
   FaMicrochip,
   FaMicroscope,
@@ -207,7 +209,7 @@ function IconRulerPen({size = '1em', ...props}: IconProps) {
 }
 
 function HomepageContent() {
-  const {siteConfig} = useDocusaurusContext();
+  const {setColorMode, colorModeChoice} = useColorMode()
 
   useLayoutEffect(() => {
     const update = () => {
@@ -235,15 +237,25 @@ function HomepageContent() {
               </div>
             </a>
 
+            <nav className={styles.mainNav}>
+              <ul>
+                <li><a href="/docs/intro">Documentation</a></li>
+                <li><a href="/docs/reference">Reference</a></li>
+                <li><a href="/case-studies">Case studies</a></li>
+              </ul>
+            </nav>
+
             <div className={styles.navCta}>
-              <a className={styles.btn + ' ' + styles.ghost} href="/docs/reference">
-                Reference
-                <FaAsterisk/>
+              <a className={styles.btn + ' ' + styles.ghost} target="_blank" href="https://github.com/modular-component/modular-component">
+                GitHub
+                <FaGithub />
               </a>
               <a className={styles.btn + ' ' + styles.primary} href="/docs/intro">
                 Get started
                 <FaChevronRight/>
               </a>
+
+              <ColorModeToggle respectPrefersColorScheme value={colorModeChoice} onChange={setColorMode} />
             </div>
           </div>
         </div>

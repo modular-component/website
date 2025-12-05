@@ -138,6 +138,16 @@ html[data-theme="dark"] {
     padding: 14px 0;
     gap: 16px;
 }
+.mainNav {
+    margin-left: auto;
+    margin-right: 2rem;
+}
+.mainNav ul {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+    margin: 0;
+}
 .brand {
     display: flex;
     align-items: center;
@@ -582,12 +592,15 @@ h2 {
 /* =========================================================
    RESPONSIVE
    ========================================================= */
+@media (max-width: 980px) {
+    .mainNav { display: none }
+}
+
 @media (max-width: 920px) {
     .heroGrid { grid-template-columns: 1fr; }
     .features { grid-template-columns: 1fr; }
     .pipeRow { grid-template-columns: 1fr; }
     .split { grid-template-columns: 1fr; }
-    nav ul { display: none; }
     .brand { min-width: auto; }
     .codecard { transform: none; transition: none }
 }
@@ -611,7 +624,7 @@ h2 {
     }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 580px) {
     .header .nav {
         display: flex;
         flex-direction: column;
@@ -623,6 +636,12 @@ h2 {
 
     .brand div > span {
         white-space: nowrap;
+    }
+
+    .navCta > div {
+        position: fixed;
+        top: 0.5rem;
+        right: 0.5rem;
     }
 
     .navCta, .heroActions {
