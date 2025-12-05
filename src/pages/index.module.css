@@ -46,8 +46,10 @@
     --glow-2: rgba(58, 123, 255, 0.25);
 }
 
-[class].footer--dark {
-    --ifm-footer-background-color: var(--surface-2);
+:global(#__docusaurus):has(.main) {
+    :global(.navbar) {
+        display: none;
+    }
 }
 
 html[data-theme="dark"] {
@@ -122,7 +124,7 @@ html[data-theme="dark"] {
    ========================================================= */
 .header {
     position: sticky;
-    top: 60px;
+    top: 0;
     z-index: 20;
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
@@ -616,7 +618,7 @@ h2 {
     }
 
     .header {
-        top: 0;
+        top: -4rem;
     }
 
     .brand div > span {
