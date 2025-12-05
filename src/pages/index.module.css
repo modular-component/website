@@ -34,6 +34,10 @@
     --accent-2: #3a7bff;
     --danger: #ff4d6d;
 
+    --nc-gradient-1-color-1: color-mix(in srgb, var(--accent) 40%, white);
+    --nc-gradient-1-color-2: color-mix(in srgb, var(--accent) 30%, #FFF5);
+    --nc-gradient-2-color-2: color-mix(in srgb, var(--accent-2) 20%, white);
+
     --code-bg: rgba(2, 6, 23, 0.92);
     --code-text: rgba(255, 255, 255, 0.92);
     --code-muted: rgba(255, 255, 255, 0.72);
@@ -44,39 +48,6 @@
     --glow-2: rgba(58, 123, 255, 0.25);
 }
 
-/* Dark mode overrides */
-@media (prefers-color-scheme: dark) {
-    html[data-theme="auto"] {
-        --bg: #070a12;
-        --surface: rgba(15, 23, 42, 0.52);
-        --surface-2: rgba(15, 23, 42, 0.72);
-        --border: rgba(226, 232, 240, 0.12);
-
-        --text: rgba(255, 255, 255, 0.92);
-        --muted: rgba(255, 255, 255, 0.64);
-
-        --code-bg: rgba(2, 6, 23, 0.92);
-        --code-text: rgba(255, 255, 255, 0.92);
-        --code-muted: rgba(255, 255, 255, 0.70);
-
-        --grid: rgba(226, 232, 240, 0.08);
-        --glow: rgba(33, 194, 138, 0.30);
-        --glow-2: rgba(58, 123, 255, 0.22);
-    }
-
-    [class].btn.primary {
-        border: 1px solid color-mix(in srgb, var(--accent) 40%, #555);
-        background: linear-gradient(
-                135deg,
-                color-mix(in srgb, var(--accent) 35%, #333),
-                color-mix(in srgb, var(--accent-2) 25%, #333)
-        );
-        color: rgba(255,255,255,0.86);
-    }
-}
-
-/* Optional manual theme controls (no JS):
-   set <html data-theme="dark"> or <html data-theme="light"> */
 html[data-theme="dark"] {
     --bg: #070a12;
     --surface: rgba(15, 23, 42, 0.52);
@@ -97,9 +68,6 @@ html[data-theme="dark"] {
         );
         color: rgba(255,255,255,0.86);
     }
-}
-html[data-theme="light"] {
-    /* inherits :root */
 }
 
 /* =========================================================
@@ -456,7 +424,7 @@ h2 {
     grid-template: 'icon title'
                     'description description' / 2rem 1fr;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0.5rem;
 }
 .feature:hover {
     transform: translateY(-2px);
@@ -474,18 +442,10 @@ h2 {
     grid-area: description;
 }
 .ficon {
-    width: 28px;
-    height: 28px;
-    border-radius: 12px;
-    border: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
-    background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 24%, transparent), color-mix(in srgb, var(--accent-2) 18%, transparent));
+    font-size: 28px;
     display: grid;
     place-items: center;
     transform: translateY(1px);
-}
-.ficon svg { opacity: 0.95; }
-.feature:nth-child(2) .ficon {
-    background: linear-gradient(135deg, color-mix(in srgb, var(--accent-2) 24%, transparent), color-mix(in srgb, var(--accent) 18%, transparent));
 }
 
 /* Pipeline diagram */
@@ -618,6 +578,7 @@ h2 {
     .split { grid-template-columns: 1fr; }
     nav ul { display: none; }
     .brand { min-width: auto; }
+    .codecard { transform: none; transition: none }
 }
 
 @media (max-width: 620px) {
