@@ -222,6 +222,7 @@ a {
 .emoji {
     width: 1.1em;
     height: 1.1em;
+    transform: translateY(2px);
 }
 
 [class].theme-admonition-ref, [class].theme-admonition-ref details {
