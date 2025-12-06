@@ -87,6 +87,7 @@ html[data-theme="dark"] {
 
     & code {
         font-family: var(--font-mono);
+        font-variant-ligatures: none;
     }
 }
 
@@ -394,7 +395,8 @@ html[data-theme="dark"] {
 .tokK { color: color-mix(in srgb, var(--accent-2) 70%, white); }
 .tokF { color: color-mix(in srgb, var(--accent) 75%, white); }
 .tokS { color: color-mix(in srgb, var(--danger) 65%, white); }
-.tokC { color: var(--code-muted); font-style: italic; }
+.tokC { color: var(--code-muted); font-style: italic;
+    font-variant-ligatures: contextual; }
 
 /* =========================================================
    SECTIONS
